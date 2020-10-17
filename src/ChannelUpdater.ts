@@ -56,7 +56,7 @@ export default class ChannelUpdater {
           )
         )
         .catch(console.error);
-        (<TextChannel> todayChannel).send(new MessageEmbed().setTimestamp(new Date()).setTitle('Advent of Code').setDescription(`New day, nex challenge! Visit the [Advent of Code website day ${today}](Insert url here)`))
+        (<TextChannel> todayChannel).send(new MessageEmbed().setTimestamp(new Date()).setTitle('Advent of Code').setDescription(`New day, new challenge! Visit the [Advent of Code website day ${today}](Insert url here)`))
     }
   }
 
