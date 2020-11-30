@@ -16,7 +16,7 @@ export default class ChannelUpdater {
       now.getFullYear(),
       now.getMonth(),
       now.getDate(),
-      0,
+      6, // Because the bot is hosted on a server with CET time zone…
       0,
       0,
       0
