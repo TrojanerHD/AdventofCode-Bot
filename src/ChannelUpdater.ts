@@ -1,7 +1,13 @@
-import { CategoryChannel, Guild, GuildChannel, MessageEmbed, TextChannel } from 'discord.js';
+import {
+  CategoryChannel,
+  GuildChannel,
+  MessageEmbed,
+  TextChannel,
+} from 'discord.js';
 import DiscordBot from './DiscordBot';
 
 export default class ChannelUpdater {
+  private _now: Date = new Date();
   constructor() {
     DiscordBot._client.on('ready', this.onReady.bind(this));
   }
@@ -11,20 +17,20 @@ export default class ChannelUpdater {
   }
 
   private checkToday(): void {
-    const now: Date = new Date();
+    this._now.setHours(this._now.getHours() - 6); // Because the bot is hosted on a server with CET time zone…
     const nextDay: Date = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate(),
-      6, // Because the bot is hosted on a server with CET time zone…
+      this._now.getFullYear(),
+      this._now.getMonth(),
+      this._now.getDate(),
+      6,
       0,
       0,
       0
     );
-    nextDay.setDate(now.getDate() + 1);
+    nextDay.setDate(this._now.getDate() + 1);
     setTimeout(
       this.checkToday.bind(this),
-      nextDay.getTime() - now.getTime()
+      nextDay.getTime() - this._now.getTime()
     );
     for (const guild of DiscordBot._client.guilds.cache.array()) {
       const soonChannel:
@@ -41,8 +47,7 @@ export default class ChannelUpdater {
       const todayChannel: GuildChannel | undefined = (<CategoryChannel>(
         soonChannel
       )).children.find(
-        (channel: GuildChannel) =>
-          channel.name.toLowerCase() === today
+        (channel: GuildChannel) => channel.name.toLowerCase() === today
       );
       if (!todayChannel) continue;
       todayChannel
@@ -56,13 +61,19 @@ export default class ChannelUpdater {
           )
         )
         .catch(console.error);
-        (<TextChannel> todayChannel).send(new MessageEmbed().setTimestamp(new Date()).setTitle('Advent of Code').setDescription(`New day, new challenge! Visit the [Advent of Code website day ${today}](Insert url here)`))
+      (<TextChannel>todayChannel).send(
+        new MessageEmbed()
+          .setTimestamp(new Date())
+          .setTitle('Advent of Code')
+          .setDescription(
+            `New day, new challenge! Visit the [Advent of Code website day ${today}](https://adventofcode.com/2020/day/${this._now.getDay()})`
+          )
+      );
     }
   }
 
   private parseDay(): string {
-    const date: Date = new Date();
-    let day: string = date.getDate().toString();
-    return date.getDate() < 10 ? `0${day}` : day;
+    let day: string = this._now.getDate().toString();
+    return this._now.getDate() < 10 ? `0${day}` : day;
   }
 }
