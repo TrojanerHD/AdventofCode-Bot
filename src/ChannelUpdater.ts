@@ -48,7 +48,7 @@ export default class ChannelUpdater {
       const todayChannel: GuildChannel | undefined = (<CategoryChannel>(
         soonChannel
       )).children.find(
-        (channel: GuildChannel) => channel.name.toLowerCase() === today
+        (channel: GuildChannel) => channel.name.toLowerCase() === `${this._now.getFullYear()}-${today}`
       );
       if (!todayChannel) continue;
       todayChannel
