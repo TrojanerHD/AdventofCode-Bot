@@ -23,7 +23,7 @@ export default class ChannelUpdater {
       this._now.getFullYear(),
       this._now.getMonth(),
       this._now.getDate(),
-      6,
+      0,
       0,
       0,
       0
