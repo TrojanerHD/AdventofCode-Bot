@@ -11,6 +11,7 @@ import { IncomingMessage } from 'http';
 
 interface Member {
   last_star_ts: number;
+  local_score: number;
   stars: number;
   name: string;
 }
@@ -118,11 +119,10 @@ export default class Leaderboard {
     // convert from object to array
     let members: Member[] = Object.values(leaderboardData.members);
 
-    // sort for star amount and last star timestamp
+    // sort based on local score
     members.sort((a: Member, b: Member): number => {
-      if (a.last_star_ts === 0) a.last_star_ts += 9999999999;
-      if (b.last_star_ts === 0) b.last_star_ts += 9999999999;
-      return b.stars - a.stars + a.last_star_ts - b.last_star_ts;
+      if (b.stars !== a.stars) return b.stars - a.stars;
+      else return b.local_score - a.local_score;
     });
 
     // add members to embed
