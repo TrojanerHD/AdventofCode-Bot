@@ -8,15 +8,8 @@ import DiscordBot from './DiscordBot';
 
 export default class ChannelUpdater {
   private _now: Date = new Date();
-  constructor() {
-    DiscordBot._client.on('ready', this.onReady.bind(this));
-  }
 
-  private onReady(): void {
-    this.checkToday();
-  }
-
-  private checkToday(): void {
+  checkToday(): void {
     this._now = new Date();
     this._now.setHours(this._now.getHours() - 6); // Because the bot is hosted on a server with CET time zone…
     const nextDay: Date = new Date(
