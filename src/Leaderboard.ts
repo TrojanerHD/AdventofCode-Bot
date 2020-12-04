@@ -120,7 +120,10 @@ export default class Leaderboard {
     let members: Member[] = Object.values(leaderboardData.members);
 
     // sort based on local score
-    members.sort((a: Member, b: Member): number => b.local_score - a.local_score);
+    members.sort((a: Member, b: Member): number => {
+      if (b.stars !== a.stars) return b.stars - a.stars;
+      else return b.local_score - a.local_score;
+    });
 
     // add members to embed
     for (const member of members) {
