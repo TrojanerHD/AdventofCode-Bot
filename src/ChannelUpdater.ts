@@ -4,6 +4,7 @@ import {
   MessageEmbed,
   TextChannel,
 } from 'discord.js';
+import { parseDay } from './common';
 import DiscordBot from './DiscordBot';
 
 export default class ChannelUpdater {
@@ -37,18 +38,19 @@ export default class ChannelUpdater {
             channel.name.toLowerCase() === 'soon :tm:'
         );
       if (!soonChannel) continue;
-      const today: string = this.parseDay();
+      const today: string = parseDay(this._now);
       const todayChannel: GuildChannel | undefined = (<CategoryChannel>(
         soonChannel
       )).children.find(
-        (channel: GuildChannel) => channel.name.toLowerCase() === `${this._now.getFullYear()}-${today}`
+        (channel: GuildChannel): boolean =>
+          channel.name.toLowerCase() === `${this._now.getFullYear()}-${today}`
       );
       if (!todayChannel) continue;
       todayChannel
         .setParent(
           <CategoryChannel>(
             guild.channels.cache.find(
-              (channel: GuildChannel) =>
+              (channel: GuildChannel): boolean =>
                 channel.type === 'category' &&
                 channel.name.toLowerCase() === '2020'
             )
@@ -64,10 +66,5 @@ export default class ChannelUpdater {
           )
       );
     }
-  }
-
-  private parseDay(): string {
-    let day: string = this._now.getDate().toString();
-    return this._now.getDate() < 10 ? `0${day}` : day;
   }
 }

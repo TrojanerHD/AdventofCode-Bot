@@ -8,11 +8,11 @@ import {
 import DiscordBot from './DiscordBot';
 import { request } from 'https';
 import { IncomingMessage } from 'http';
-
+import { parseDay } from './common';
 
 interface Day {
-  1: { get_star_ts: string};
-  2?: { get_star_ts: string};
+  1: { get_star_ts: string };
+  2?: { get_star_ts: string };
 }
 interface Member {
   completion_day_level: {
@@ -77,7 +77,10 @@ export default class Leaderboard {
 
   private messagesFetched(messages: Collection<string, Message>): void {
     const now: Date = new Date();
-    if (messages.first() && messages.first().member.user === DiscordBot._client.user)
+    if (
+      messages.first() &&
+      messages.first().member.user === DiscordBot._client.user
+    )
       // add to messages array
       this._messages.push(messages.first());
     else {
@@ -115,7 +118,7 @@ export default class Leaderboard {
     console.log(`${now}: refreshing Leaderboard`);
 
     // fetch API
-   request(
+    request(
       {
         host: 'adventofcode.com',
         path: `/${now.getFullYear()}/leaderboard/private/view/${
@@ -164,25 +167,26 @@ export default class Leaderboard {
 
       for (let i = 1; i < 26; i++) {
         if (i in member.completion_day_level) {
-          if (member.completion_day_level[i][2]){
+          if (member.completion_day_level[i][2]) {
             // part 1 and 2 are complete
-            const completed_ts: number = Number(member.completion_day_level[i][2].get_star_ts)*1000;
+            const completed_ts: number =
+              Number(member.completion_day_level[i][2].get_star_ts) * 1000;
 
             // check if star is younger than an hour
-            if (completed_ts - (now.getTime() - 3600000/*one hour*/) > 0){
+            if (completed_ts - (now.getTime() - 3600000) /*one hour*/ > 0) {
               // star is younger than one hour
               stars += ':star2:';
-              
-            } else if(completed_ts-10800000 < this.getDateOfChallengeBegin(now, i).getTime()) {
+            } else if (
+              completed_ts - 10800000 <
+              this.getDateOfChallengeBegin(now, i).getTime()
+            ) {
               // member completed day in under 3 hours
               stars += ':sparkles:';
-            }
-            else stars += ':star:'; // star is older than one hour and was not completet inside the 3 hours after release
-          }
-          else stars += ':last_quarter_moon:';  // part 1 is complete, but not part 2
+            } else stars += ':star:'; // star is older than one hour and was not completet inside the 3 hours after release
+          } else stars += ':last_quarter_moon:'; // part 1 is complete, but not part 2
           continue;
         }
-        stars += ':new_moon:';  // no part is complete
+        stars += ':new_moon:'; // no part is complete
       }
 
       newMsg.addField(member.name, stars);
@@ -193,6 +197,8 @@ export default class Leaderboard {
   }
 
   private getDateOfChallengeBegin(now: Date, day: number): Date {
-    return new Date(`${now.getFullYear()}-12-${("0" + day).slice(-2)}T00:00:00-05:00`);
+    return new Date(
+      `${now.getFullYear()}-12-${parseDay(now, day)}T00:00:00-05:00`
+    );
   }
 }
