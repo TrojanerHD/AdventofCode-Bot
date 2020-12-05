@@ -9,7 +9,39 @@ import DiscordBot from './DiscordBot';
 import { request } from 'https';
 import { IncomingMessage } from 'http';
 
+
+interface Day {
+  1: { get_star_ts: string};
+  2?: { get_star_ts: string};
+}
 interface Member {
+  completion_day_level: {
+    1?: Day;
+    2?: Day;
+    3?: Day;
+    4?: Day;
+    5?: Day;
+    6?: Day;
+    7?: Day;
+    8?: Day;
+    9?: Day;
+    10?: Day;
+    11?: Day;
+    12?: Day;
+    13?: Day;
+    14?: Day;
+    15?: Day;
+    16?: Day;
+    17?: Day;
+    18?: Day;
+    19?: Day;
+    20?: Day;
+    21?: Day;
+    22?: Day;
+    23?: Day;
+    24?: Day;
+    25?: Day;
+  };
   last_star_ts: number;
   local_score: number;
   stars: number;
@@ -127,11 +159,17 @@ export default class Leaderboard {
 
     // add members to embed
     for (const member of members) {
+      if (member.stars === 0) continue;
       let stars: string = '';
-      for (let i: number = 0; i < Math.floor(member.stars / 2); i++) stars += ':star:';
-      if (member.stars % 2) stars += ':last_quarter_moon:';
-      for (let i: number = Math.round(member.stars / 2); i < 24; i++)
-        stars += ':new_moon:';
+
+      for (let i = 1; i < 26; i++) {
+        if (i in member.completion_day_level) {
+          if (member.completion_day_level[i][2]) stars += ':star:'; // part 1 and 2 are complete
+          else stars += ':last_quarter_moon:';  // part 1 is complete, but not part 2
+          continue;
+        }
+        stars += ':new_moon:';  // no part is complete
+      }
 
       newMsg.addField(member.name, stars);
     }
