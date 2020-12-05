@@ -1,5 +1,7 @@
 
 # How to contribute
+## Pull Requests
+Since the configuration for your hosted bot might be different to the configuration on the hosting server (or on my local machine), never create Pull Requests for the main branch. I would suggest using the [unstable branch](https://github.com/TrojanerHD/AdventofCode-Bot/tree/unstable)
 ## TypeScript Styleguide
 The [prettier](https://prettier.io/) code formatter is used
 
