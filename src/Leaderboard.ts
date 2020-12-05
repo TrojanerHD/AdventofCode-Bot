@@ -166,10 +166,18 @@ export default class Leaderboard {
         if (i in member.completion_day_level) {
           if (member.completion_day_level[i][2]){
             // part 1 and 2 are complete
+            const completed_ts: number = Number(member.completion_day_level[i][2].get_star_ts)*1000;
+
             // check if star is younger than an hour
-            if (Number(member.completion_day_level[i][2].get_star_ts) - (now.getTime()/1000 - 3600/*one hour*/) > 0){
-              stars += ':star2:'; // star is younger than one hour
-            } else stars += ':star:'; // star is older than one hour
+            if (completed_ts - (now.getTime() - 3600000/*one hour*/) > 0){
+              // star is younger than one hour
+              stars += ':star2:';
+              
+            } else if(completed_ts-10800000 < this.getDay(now, i).getTime()) { //TODO: this doesn't work
+              // member completed day in under 3 hours
+              stars += ':sparkles:';
+            }
+            else stars += ':star:'; // star is older than one hour and was not completet inside the 3 hours after release
           }
           else stars += ':last_quarter_moon:';  // part 1 is complete, but not part 2
           continue;
@@ -182,5 +190,9 @@ export default class Leaderboard {
 
     // update all leaderbaord messages
     for (const msg of this._messages) msg.edit(newMsg).catch(console.error);
+  }
+
+  private getDay(now: Date, day: number): Date {
+    return new Date(`${now.getFullYear()}-12-${("0" + day).slice(-2)}T00:00:00-05:00`);
   }
 }
