@@ -179,7 +179,7 @@ if (someBoolean) {
 console.log(someBoolean ? 'someBoolean true' : 'someBoolean false'); //GOOD but in this case…
 console.log(`someBoolean ${someBoolean}`); //…would be better
 ```
-Rule 15: Never use lambda functions unless for very short operations:
+Rule 15: Never use lambda functions other than for very short operations:
 ```ts
 //BAD:
 client.on('message', (message: Message): void => {
