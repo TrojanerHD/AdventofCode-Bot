@@ -173,7 +173,7 @@ export default class Leaderboard {
               // star is younger than one hour
               stars += ':star2:';
               
-            } else if(completed_ts-10800000 < this.getDay(now, i).getTime()) { //TODO: this doesn't work
+            } else if(completed_ts-10800000 < this.getDateOfChallengeBegin(now, i).getTime()) {
               // member completed day in under 3 hours
               stars += ':sparkles:';
             }
@@ -192,7 +192,7 @@ export default class Leaderboard {
     for (const msg of this._messages) msg.edit(newMsg).catch(console.error);
   }
 
-  private getDay(now: Date, day: number): Date {
+  private getDateOfChallengeBegin(now: Date, day: number): Date {
     return new Date(`${now.getFullYear()}-12-${("0" + day).slice(-2)}T00:00:00-05:00`);
   }
 }
