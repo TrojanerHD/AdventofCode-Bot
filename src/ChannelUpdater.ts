@@ -60,7 +60,7 @@ export default class ChannelUpdater {
           .setTimestamp(new Date())
           .setTitle('Advent of Code')
           .setDescription(
-            `New day, new challenge! Visit the [Advent of Code website day ${today}](https://adventofcode.com/2020/day/${this._now.getDay()})`
+            `New day, new challenge! Visit the [Advent of Code website day ${today}](https://adventofcode.com/2020/day/${this._now.getDate()})`
           )
       );
     }

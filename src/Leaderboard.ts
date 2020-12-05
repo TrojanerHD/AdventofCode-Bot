@@ -11,6 +11,7 @@ import { IncomingMessage } from 'http';
 
 interface Member {
   last_star_ts: number;
+  local_score: number;
   stars: number;
   name: string;
 }
@@ -23,10 +24,10 @@ export default class Leaderboard {
     // get all guilds the bot is on
     for (const guild of DiscordBot._client.guilds.cache.array()) {
       // check if these guilds have a text channel named 'leaderboard'
-      const leaderboardChannel = guild.channels.cache
+      const leaderboardChannel: GuildChannel = guild.channels.cache
         .array()
         .find(
-          (channel: GuildChannel) =>
+          (channel: GuildChannel): boolean =>
             channel.name === 'leaderboard' && channel.type === 'text'
         );
       if (!leaderboardChannel || !(leaderboardChannel instanceof TextChannel))
@@ -62,7 +63,7 @@ export default class Leaderboard {
             .setDescription('FIRST TIME SETUP...')
             .setTimestamp(now)
         )
-        .then((message: Message) => this._messages.push(message))
+        .then((message: Message): number => this._messages.push(message))
         .catch(console.error);
     }
 
@@ -77,7 +78,7 @@ export default class Leaderboard {
       1800000 //30 minutes
     );
 
-    const now = new Date();
+    const now: Date = new Date();
 
     console.log(`${now}: refreshing Leaderboard`);
 
@@ -90,7 +91,7 @@ export default class Leaderboard {
         }.json`,
         headers: { Cookie: `session=${process.env.AOC_SESSION}` },
       },
-      (res: IncomingMessage) => {
+      (res: IncomingMessage): void => {
         // wait for data
         res.on('data', this.dataReceived.bind(this));
       }
@@ -100,8 +101,8 @@ export default class Leaderboard {
   }
 
   private dataReceived(data: string): void {
-    const now = new Date();
-    const nextUpdate = new Date(now.getTime() + 1800000);
+    const now: Date = new Date();
+    const nextUpdate: Date = new Date(now.getTime() + 1800000);
     let leaderboardData: { members: Member[] } = JSON.parse(data);
 
     let newMsg: MessageEmbed = new MessageEmbed()
@@ -118,19 +119,19 @@ export default class Leaderboard {
     // convert from object to array
     let members: Member[] = Object.values(leaderboardData.members);
 
-    // sort for star amount and last star timestamp
+    // sort based on local score
     members.sort((a: Member, b: Member): number => {
-      if (a.last_star_ts === 0) a.last_star_ts += 9999999999;
-      if (b.last_star_ts === 0) b.last_star_ts += 9999999999;
-      return b.stars - a.stars + a.last_star_ts - b.last_star_ts;
+      if (b.stars !== a.stars) return b.stars - a.stars;
+      else return b.local_score - a.local_score;
     });
 
     // add members to embed
     for (const member of members) {
-      let stars = '';
-      for (let i = 0; i < Math.floor(member.stars / 2); i++) stars += ':star:';
+      if (member.stars == 0) continue;
+      let stars: string = '';
+      for (let i: number = 0; i < Math.floor(member.stars / 2); i++) stars += ':star:';
       if (member.stars % 2) stars += ':last_quarter_moon:';
-      for (let i = Math.round(member.stars / 2); i < 24; i++)
+      for (let i: number = Math.round(member.stars / 2); i < 24; i++)
         stars += ':new_moon:';
 
       newMsg.addField(member.name, stars);
