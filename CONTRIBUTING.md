@@ -106,13 +106,15 @@ const arr: { value: string; valueTwo: string }[] = [] //GOOD
 Rule 10: Always add types; never use `any` unless it is unavoidable:
 ```ts
 let someNumber = 54; //BAD
-const someBoolean = true; //BAD
-function helloWorld() { //BAD
-[3, 2, 1].sort((a: number, b: number) => a > b ? 1 : -1); //BAD
-
 let someNumber: number = 54; //GOOD
+
+const someBoolean = true; //BAD
 const someBoolean: boolean = true; //GOOD
+
+function helloWorld() { //BAD
 function helloWorld(): void { //GOOD
+
+[3, 2, 1].sort((a: number, b: number) => a > b ? 1 : -1); //BAD
 [3, 2, 1].sort((a: number, b: number): number => a > b ? 1 : -1); //GOOD
 ```
 Rule 11: Use `[]`, not `Array<T>`:
@@ -174,7 +176,7 @@ if (someBoolean) {
   console.log('someBoolean false');
 }
 
-console.log(someBoolean ? 'someBoolean true' : 'someBoolean false');//GOOD but in this case…
+console.log(someBoolean ? 'someBoolean true' : 'someBoolean false'); //GOOD but in this case…
 console.log(`someBoolean ${someBoolean}`); //…would be better
 ```
 Rule 15: Never use lambda functions unless for very short operations:
