@@ -127,6 +127,7 @@ export default class Leaderboard {
 
     // add members to embed
     for (const member of members) {
+      if (member.stars == 0) continue;
       let stars: string = '';
       for (let i: number = 0; i < Math.floor(member.stars / 2); i++) stars += ':star:';
       if (member.stars % 2) stars += ':last_quarter_moon:';
