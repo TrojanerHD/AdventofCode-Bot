@@ -164,7 +164,13 @@ export default class Leaderboard {
 
       for (let i = 1; i < 26; i++) {
         if (i in member.completion_day_level) {
-          if (member.completion_day_level[i][2]) stars += ':star:'; // part 1 and 2 are complete
+          if (member.completion_day_level[i][2]){
+            // part 1 and 2 are complete
+            // check if star is younger than an hour
+            if (Number(member.completion_day_level[i][2].get_star_ts) - (now.getTime()/1000 - 3600/*one hour*/) > 0){
+              stars += ':star2:'; // star is younger than one hour
+            } else stars += ':star:'; // star is older than one hour
+          }
           else stars += ':last_quarter_moon:';  // part 1 is complete, but not part 2
           continue;
         }
