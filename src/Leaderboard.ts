@@ -161,10 +161,15 @@ export default class Leaderboard {
     for (const member of members) {
       if (member.stars === 0) continue;
       let stars: string = '';
-      for (let i: number = 0; i < Math.floor(member.stars / 2); i++) stars += ':star:';
-      if (member.stars % 2) stars += ':last_quarter_moon:';
-      for (let i: number = Math.round(member.stars / 2); i < 24; i++)
-        stars += ':new_moon:';
+
+      for (let i = 1; i < 26; i++) {
+        if (i in member.completion_day_level) {
+          if (member.completion_day_level[i][2]) stars += ':star:'; // part 1 and 2 are complete
+          else stars += ':last_quarter_moon:';  // part 1 is complete, but not part 2
+          continue;
+        }
+        stars += ':new_moon:';  // no part is complete
+      }
 
       newMsg.addField(member.name, stars);
     }
