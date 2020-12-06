@@ -9,6 +9,7 @@ import DiscordBot from './DiscordBot';
 import { request } from 'https';
 import { IncomingMessage } from 'http';
 import { parseDay } from './common';
+import * as fs from 'fs';
 
 interface Day {
   1: { get_star_ts: string };
@@ -51,6 +52,19 @@ interface Member {
 export default class Leaderboard {
   private _messages: Message[] = [];
   private _leaderboardChannel: TextChannel;
+  private _overwriteApi: string | undefined;
+
+  constructor() {
+    for (let i = 0; i < process.argv.length; i++) {
+      const arg: string = process.argv[i];
+      if (arg === '--overwrite-api')
+        if (process.argv.length >= i + 2) {
+          const file: string = process.argv[i + 1];
+          if (fs.existsSync(file))
+            this._overwriteApi = fs.readFileSync(file, 'utf-8');
+        }
+    }
+  }
 
   onReady(): void {
     // get all guilds the bot is on
@@ -117,6 +131,10 @@ export default class Leaderboard {
 
     console.log(`${now}: refreshing Leaderboard`);
 
+    if (this._overwriteApi) {
+      this.dataReceived(this._overwriteApi);
+      return;
+    }
     // fetch API
     request(
       {
