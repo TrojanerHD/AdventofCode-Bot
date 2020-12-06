@@ -8,8 +8,41 @@ import {
 import DiscordBot from './DiscordBot';
 import { request } from 'https';
 import { IncomingMessage } from 'http';
+import { parseDay } from './common';
+import * as fs from 'fs';
 
+interface Day {
+  1: { get_star_ts: string };
+  2?: { get_star_ts: string };
+}
 interface Member {
+  completion_day_level: {
+    1?: Day;
+    2?: Day;
+    3?: Day;
+    4?: Day;
+    5?: Day;
+    6?: Day;
+    7?: Day;
+    8?: Day;
+    9?: Day;
+    10?: Day;
+    11?: Day;
+    12?: Day;
+    13?: Day;
+    14?: Day;
+    15?: Day;
+    16?: Day;
+    17?: Day;
+    18?: Day;
+    19?: Day;
+    20?: Day;
+    21?: Day;
+    22?: Day;
+    23?: Day;
+    24?: Day;
+    25?: Day;
+  };
   last_star_ts: number;
   local_score: number;
   stars: number;
@@ -19,6 +52,19 @@ interface Member {
 export default class Leaderboard {
   private _messages: Message[] = [];
   private _leaderboardChannel: TextChannel;
+  private _overwriteApi: string | undefined;
+
+  constructor() {
+    for (let i = 0; i < process.argv.length; i++) {
+      const arg: string = process.argv[i];
+      if (arg === '--overwrite-api')
+        if (process.argv.length >= i + 2) {
+          const file: string = process.argv[i + 1];
+          if (fs.existsSync(file))
+            this._overwriteApi = fs.readFileSync(file, 'utf-8');
+        }
+    }
+  }
 
   onReady(): void {
     // get all guilds the bot is on
@@ -45,7 +91,10 @@ export default class Leaderboard {
 
   private messagesFetched(messages: Collection<string, Message>): void {
     const now: Date = new Date();
-    if (messages.first() && messages.first().member.user === DiscordBot._client.user)
+    if (
+      messages.first() &&
+      messages.first().member.user === DiscordBot._client.user
+    )
       // add to messages array
       this._messages.push(messages.first());
     else {
@@ -82,8 +131,12 @@ export default class Leaderboard {
 
     console.log(`${now}: refreshing Leaderboard`);
 
+    if (this._overwriteApi) {
+      this.dataReceived(this._overwriteApi);
+      return;
+    }
     // fetch API
-   request(
+    request(
       {
         host: 'adventofcode.com',
         path: `/${now.getFullYear()}/leaderboard/private/view/${
@@ -113,7 +166,9 @@ export default class Leaderboard {
           process.env.LEADERBOARD_ID
         }`
       )
-      .setDescription(`Next update: ${nextUpdate.toLocaleTimeString()}`)
+      .setDescription(
+        `:new_moon:: No part of the day is completed\n:last_quarter_moon:: Part 1 out of 2 is completed\n:star2:: Both part 1 and part 2 were completed during the last hour\n:star:: Both part 1 and part 2 are completed\n:sparkles:: Both part 1 and part 2 were completed within the first 3 hours the challenge was online.\n\nNext update: ${nextUpdate.toLocaleTimeString()}`
+      )
       .setTimestamp(now);
 
     // convert from object to array
@@ -129,15 +184,41 @@ export default class Leaderboard {
     for (const member of members) {
       if (member.stars === 0) continue;
       let stars: string = '';
-      for (let i: number = 0; i < Math.floor(member.stars / 2); i++) stars += ':star:';
-      if (member.stars % 2) stars += ':last_quarter_moon:';
-      for (let i: number = Math.round(member.stars / 2); i < 24; i++)
-        stars += ':new_moon:';
+
+      for (let i = 1; i < 26; i++) {
+        if (i in member.completion_day_level) {
+          if (member.completion_day_level[i][2]) {
+            // part 1 and 2 are complete
+            const completed_ts: number =
+              Number(member.completion_day_level[i][2].get_star_ts) * 1000;
+
+            // check if star is younger than an hour
+            if (completed_ts - (now.getTime() - 3600000) /*one hour*/ > 0) {
+              // star is younger than one hour
+              stars += ':star2:';
+            } else if (
+              completed_ts - 10800000 <
+              this.getDateOfChallengeBegin(now, i).getTime()
+            ) {
+              // member completed day in under 3 hours
+              stars += ':sparkles:';
+            } else stars += ':star:'; // star is older than one hour and was not completet inside the 3 hours after release
+          } else stars += ':last_quarter_moon:'; // part 1 is complete, but not part 2
+          continue;
+        }
+        stars += ':new_moon:'; // no part is complete
+      }
 
       newMsg.addField(member.name, stars);
     }
 
     // update all leaderbaord messages
     for (const msg of this._messages) msg.edit(newMsg).catch(console.error);
+  }
+
+  private getDateOfChallengeBegin(now: Date, day: number): Date {
+    return new Date(
+      `${now.getFullYear()}-12-${parseDay(now, day)}T00:00:00-05:00`
+    );
   }
 }
