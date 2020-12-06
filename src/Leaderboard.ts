@@ -149,7 +149,9 @@ export default class Leaderboard {
         }`
       )
       .setDescription(`Next update: ${nextUpdate.toLocaleTimeString()}`)
-      .setDescription(`:new_moon:: No part of the day is completed\n:last_quarter_moon:: Part 1 out of 2 is completed\n:star2:: Both, part 1 and part 2 were completed during the last hour\n:star:: Both part 1 and part 2 are completed\n:sparkles:: Both part 1 and part 2 were completed within the first 3 hours the challange was online.\n\nNext update: ${nextUpdate.toLocaleTimeString()}`)
+      .setDescription(
+        `:new_moon:: No part of the day is completed\n:last_quarter_moon:: Part 1 out of 2 is completed\n:star2:: Both, part 1 and part 2 were completed during the last hour\n:star:: Both part 1 and part 2 are completed\n:sparkles:: Both part 1 and part 2 were completed within the first 3 hours the challange was online.\n\nNext update: ${nextUpdate.toLocaleTimeString()}`
+      )
       .setTimestamp(now);
 
     // convert from object to array
