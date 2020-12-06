@@ -6,12 +6,12 @@
   "author": "Trojaner",
   "license": "MIT",
   "dependencies": {
-    "@types/sqlite3": "^3.1.6",
     "discord.js": "^12.3.1",
     "sqlite3": "^5.0.0"
   },
   "devDependencies": {
     "@types/node": "^14.11.10",
+    "@types/sqlite3": "^3.1.6",
     "dotenv": "^8.2.0"
   },
   "scripts": {
