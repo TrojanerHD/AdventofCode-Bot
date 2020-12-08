@@ -1,7 +1,7 @@
 import { Server } from 'http';
 import { Database, RunResult, Statement } from 'sqlite3';
 
-export default interface ServerInfo {
+export interface ServerInfo {
   id: string;
   enableleaderboard: boolean;
   enableChannelUpdater: boolean;
@@ -27,7 +27,7 @@ export default class DatabaseHelper {
   public getServer(id: string): Promise<ServerInfo> {
     return new Promise<ServerInfo>((resolve, reject) => {
       this.getRow(`SELECT * FROM servers WHERE id=?;`, [id])
-        .then((row) => {
+        .then((row: any) => {
           resolve(row);
         })
         .catch(reject);
@@ -63,7 +63,7 @@ export default class DatabaseHelper {
         ]
       )
         .then(resolve)
-        .catch((err) => reject(err));
+        .catch((err: Error) => reject(err));
     });
   }
 
