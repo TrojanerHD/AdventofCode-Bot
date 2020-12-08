@@ -21,8 +21,7 @@ export default class DatabaseHelper {
 
   /**
    * Gets a server's configuration from the database
-   * @param id the Gulid ID to identifie the rows
-   *
+   * @param id the Guild ID to identify the rows
    * @returns a promise of a ServerInfo interface containing all of the row's data
    */
   public getServer(id: string): Promise<ServerInfo> {
@@ -69,8 +68,8 @@ export default class DatabaseHelper {
   }
 
   /**
-   * Creates all reuqired tables if they don't exist.
-   * @returns a void promise, for error andling only
+   * Creates all required tables if they don't exist.
+   * @returns a void promise, for error handling only
    */
   private initDatabase(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
@@ -95,8 +94,8 @@ export default class DatabaseHelper {
   /**
    * A wrapper around the Database.run function of the sqlite3 library
    * @param sql the SQL query to be executed
-   * @param params parameters for placeholders. automatically sanitized.
-   * @returns a void promise, for error andling only
+   * @param params parameters for placeholders. Automatically sanitized
+   * @returns a void promise, for error handling only
    */
   private runQuery(sql: string, params: any[]): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -110,8 +109,8 @@ export default class DatabaseHelper {
   /**
    * A wrapper around the Database.get function of the sqlite3 library
    * @param sql the SQL query to be executed
-   * @param params parameters for placeholders. automatically sanitized.
-   * @returns a promise for a any object, containing the data of the row the query fetched.
+   * @param params parameters for placeholders. Automatically sanitized
+   * @returns a promise for an any object containing the data of the row the query fetched
    */
   private getRow(sql: string, params: any[]): Promise<any> {
     return new Promise((resolve, reject) => {
@@ -125,8 +124,8 @@ export default class DatabaseHelper {
   /**
    * A wrapper around the Database.all function of the sqlite3 library
    * @param sql the SQL query to be executed
-   * @param params parameters for placeholders. automatically sanitized.
-   * @returns a promise for an any array, containing all rows the query fetched.
+   * @param params parameters for placeholders. Automatically sanitized
+   * @returns a promise for an any array containing all rows the query fetched
    */
   private getAllRows(sql: string, params: any[]): Promise<any[]> {
     return new Promise((resolve, reject) => {
