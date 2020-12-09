@@ -120,7 +120,7 @@ export default class DatabaseHelper {
    * @returns a void promise, for error handling only
    */
   private runQuery(sql: string, params: any[]): Promise<void> {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       this._db.run(sql, params, (err: Error) => {
         if (err) reject(err);
         resolve();
@@ -135,7 +135,7 @@ export default class DatabaseHelper {
    * @returns a promise for an any object containing the data of the row the query fetched
    */
   private getRow(sql: string, params: any[]): Promise<any> {
-    return new Promise((resolve, reject) => {
+    return new Promise<any>((resolve, reject) => {
       this._db.get(sql, params, (err: Error, row: any) => {
         if (err) reject(err);
         resolve(row);
@@ -150,7 +150,7 @@ export default class DatabaseHelper {
    * @returns a promise for an any array containing all rows the query fetched
    */
   private getAllRows(sql: string, params: any[]): Promise<any[]> {
-    return new Promise((resolve, reject) => {
+    return new Promise<any[]>((resolve, reject) => {
       this._db.all(sql, params, (err: Error, rows: any[]) => {
         if (err) reject(err);
         resolve(rows);
