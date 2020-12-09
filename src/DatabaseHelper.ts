@@ -4,10 +4,10 @@ export interface ServerInfo {
   id: string;
   enableleaderboard: boolean;
   enableChannelUpdater: boolean;
-  aocSession: string;
-  aocLeaderboardID: number;
-  channelNamePattern: string;
-  categoryNamePattern: string;
+  aocSession?: string;
+  aocLeaderboardID?: number;
+  channelNamePattern?: string;
+  categoryNamePattern?: string;
 }
 
 export default class DatabaseHelper {
@@ -15,7 +15,7 @@ export default class DatabaseHelper {
 
   constructor(file: string) {
     this._db = new Database(file);
-    this.initDatabase();
+    this.initDatabase().catch(console.error);
   }
 
   /**
@@ -27,7 +27,13 @@ export default class DatabaseHelper {
     return new Promise<ServerInfo>((resolve, reject) => {
       this.getRow(`SELECT * FROM servers WHERE id=?;`, [id])
         .then((row: any) => {
-          resolve(row);
+          if (row) resolve(row);
+          else
+            resolve({
+              id: id,
+              enableleaderboard: false,
+              enableChannelUpdater: false,
+            });
         })
         .catch(reject);
     });
@@ -43,22 +49,39 @@ export default class DatabaseHelper {
     return new Promise((resolve, reject) => {
       this.runQuery(
         `
-        UPDATE servers SET
-        enableLeaderboard=?,
-        enableChannelUpdater=?,
-        aocSession=?,
-        aocLeaderboardID=?,
-        channelNamePattern=?,
-        categortyNamePattern=?
-        WHERE id=?;`,
+        INSERT INTO servers
+          (
+            id,
+            enableLeaderboard,
+            enableChannelUpdater,
+            aocSession,
+            aocLeaderboardID,
+            channelNamePattern,
+            categortyNamePattern
+          )
+          VALUES(?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(id)
+          DO UPDATE SET
+            enableLeaderboard=?,
+            enableChannelUpdater=?,
+            aocSession=?,
+            aocLeaderboardID=?,
+            channelNamePattern=?,
+            categortyNamePattern=?;`,
         [
+          data.id,
           data.enableleaderboard,
           data.enableChannelUpdater,
           data.aocSession,
           data.aocLeaderboardID,
           data.channelNamePattern,
           data.categoryNamePattern,
-          data.id,
+          data.enableleaderboard,
+          data.enableChannelUpdater,
+          data.aocSession,
+          data.aocLeaderboardID,
+          data.channelNamePattern,
+          data.categoryNamePattern,
         ]
       )
         .then(resolve)
@@ -98,7 +121,7 @@ export default class DatabaseHelper {
    */
   private runQuery(sql: string, params: any[]): Promise<void> {
     return new Promise((resolve, reject) => {
-      this._db.run(sql, params, (result: RunResult, err: Error) => {
+      this._db.run(sql, params, (err: Error) => {
         if (err) reject(err);
         resolve();
       });
