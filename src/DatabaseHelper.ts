@@ -20,8 +20,8 @@ export default class DatabaseHelper {
 
   /**
    * Gets a server's configuration from the database
-   * @param id the Guild ID to identify the rows
-   * @returns a promise of a ServerInfo interface containing all of the row's data
+   * @param id The Guild ID to identify the rows
+   * @returns A promise of a ServerInfo interface containing all of the row's data
    */
   public getServer(id: string): Promise<ServerInfo> {
     return new Promise<ServerInfo>((resolve, reject) => {
@@ -40,10 +40,10 @@ export default class DatabaseHelper {
   }
 
   /**
-   * updates data in the database. the row to be updated is choosen from the ID in the data object.
-   * If no row with the provided id exists, creates a new one
-   * @param data a ServerInfo object containing the data to be written.
-   * @returns a void promise, for error andling only
+   * Updates data in the database. The row to be updated is chosen from the ID in the data object.
+   * Creates a new row if no row with the provided id exists
+   * @param data A ServerInfo object containing the data to be written.
+   * @returns A void promise, for error handling only
    */
   public updateServer(data: ServerInfo): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -91,7 +91,7 @@ export default class DatabaseHelper {
 
   /**
    * Creates all required tables if they don't exist.
-   * @returns a void promise, for error handling only
+   * @returns A void promise, for error handling only
    */
   private initDatabase(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
@@ -115,9 +115,9 @@ export default class DatabaseHelper {
 
   /**
    * A wrapper around the Database.run function of the sqlite3 library
-   * @param sql the SQL query to be executed
-   * @param params parameters for placeholders. Automatically sanitized
-   * @returns a void promise, for error handling only
+   * @param sql The SQL query to be executed
+   * @param params Parameters for placeholders. Automatically sanitized
+   * @returns A void promise, for error handling only
    */
   private runQuery(sql: string, params: any[]): Promise<void> {
     return new Promise<void>((resolve, reject) => {
@@ -130,9 +130,9 @@ export default class DatabaseHelper {
 
   /**
    * A wrapper around the Database.get function of the sqlite3 library
-   * @param sql the SQL query to be executed
-   * @param params parameters for placeholders. Automatically sanitized
-   * @returns a promise for an any object containing the data of the row the query fetched
+   * @param sql The SQL query to be executed
+   * @param params Parameters for placeholders. Automatically sanitized
+   * @returns A promise for an any object containing the data of the row the query fetched
    */
   private getRow(sql: string, params: any[]): Promise<any> {
     return new Promise<any>((resolve, reject) => {
@@ -145,9 +145,9 @@ export default class DatabaseHelper {
 
   /**
    * A wrapper around the Database.all function of the sqlite3 library
-   * @param sql the SQL query to be executed
-   * @param params parameters for placeholders. Automatically sanitized
-   * @returns a promise for an any array containing all rows the query fetched
+   * @param sql The SQL query to be executed
+   * @param params Parameters for placeholders. Automatically sanitized
+   * @returns A promise for an any array containing all rows the query fetched
    */
   private getAllRows(sql: string, params: any[]): Promise<any[]> {
     return new Promise<any[]>((resolve, reject) => {
