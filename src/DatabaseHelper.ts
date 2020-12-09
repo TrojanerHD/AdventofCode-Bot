@@ -98,13 +98,13 @@ export default class DatabaseHelper {
       this.runQuery(
         `
         CREATE TABLE IF NOT EXISTS servers (
-          id INTEGER NOT NULL PRIMARY KEY,
-          enableLeaderboard INTEGER NOT NULL DEFAULT 0,
-          enableChannelUpdater INTEGER NOT NULL DEFAULT 0,
-          aocSession Text,
+          id VARCHAR(20) NOT NULL PRIMARY KEY,
+          enableLeaderboard BOOLEAN NOT NULL DEFAULT 0,
+          enableChannelUpdater BOOLEAN NOT NULL DEFAULT 0,
+          aocSession VARCHAR(100),
           aocLeaderboardID INTEGER,
-          channelNamePattern TEXT,
-          categortyNamePattern TEXT
+          channelNamePattern VARCHAR(50),
+          categortyNamePattern VARCHAR(50)
         );`,
         []
       )
