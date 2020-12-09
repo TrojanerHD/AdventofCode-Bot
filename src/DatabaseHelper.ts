@@ -1,5 +1,4 @@
-import { Server } from 'http';
-import { Database, RunResult, Statement } from 'sqlite3';
+import { Database, RunResult } from 'sqlite3';
 
 export interface ServerInfo {
   id: string;
