@@ -11,7 +11,7 @@ export interface ServerInfo {
 }
 
 export default class DatabaseHelper {
-  public _db: Database;
+  private _db: Database;
 
   constructor(file: string, callback?: ()=>void) {
     this._db = new Database(file);
