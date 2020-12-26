@@ -156,7 +156,13 @@ export default class Leaderboard {
   private dataReceived(data: string): void {
     const now: Date = new Date();
     const nextUpdate: Date = new Date(now.getTime() + 1800000);
-    let leaderboardData: { members: Member[] } = JSON.parse(data);
+    let leaderboardData: { members: Member[] };
+    try {
+      leaderboardData = JSON.parse(data);
+    } catch (e: any) {
+      console.error(e);
+      return;
+    }
 
     let newMsg: MessageEmbed = new MessageEmbed()
       .setColor('#0f0f23')
