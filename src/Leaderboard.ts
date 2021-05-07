@@ -6,10 +6,15 @@ import {
   Collection,
 } from 'discord.js';
 import DiscordBot from './DiscordBot';
-import { request } from 'https';
-import { IncomingMessage } from 'http';
+import * as fetch from 'node-fetch';
 import { parseDay } from './common';
 import * as fs from 'fs';
+
+interface LeaderboardJSON {
+  event: string;
+  owner_id: string;
+  members: Member[];
+}
 
 interface Day {
   1: { get_star_ts: string };
@@ -91,6 +96,7 @@ export default class Leaderboard {
 
   private messagesFetched(messages: Collection<string, Message>): void {
     const now: Date = new Date();
+    if (now.getMonth() !== 11) now.setFullYear(now.getFullYear() - 1);
     if (
       messages.first() &&
       messages.first().member.user === DiscordBot._client.user
@@ -128,47 +134,41 @@ export default class Leaderboard {
     );
 
     const now: Date = new Date();
+    if (now.getMonth() !== 11) now.setFullYear(now.getFullYear() - 1);
 
     console.log(`${now}: refreshing Leaderboard`);
 
     if (this._overwriteApi) {
-      this.dataReceived(this._overwriteApi);
+      this.dataReceived(JSON.parse(this._overwriteApi));
       return;
     }
+
     // fetch API
-    request(
-      {
-        host: 'adventofcode.com',
-        path: `/${now.getFullYear()}/leaderboard/private/view/${
+    fetch
+      .default(
+        `https://adventofcode.com/${now.getFullYear()}/leaderboard/private/view/${
           process.env.LEADERBOARD_ID
         }.json`,
-        headers: { Cookie: `session=${process.env.AOC_SESSION}` },
-      },
-      (res: IncomingMessage): void => {
-        // wait for data
-        res.on('data', this.dataReceived.bind(this));
-      }
-    )
-      .on('error', console.error)
-      .end();
+        {headers: {Cookie: `session=${process.env.AOC_SESSION}`}}
+      )
+      .then((res: fetch.Response): Promise<LeaderboardJSON> => res.json())
+      .catch(console.error)
+      .then((data: LeaderboardJSON) => this.dataReceived(data))
+      .catch(console.error);
   }
 
-  private dataReceived(data: string): void {
+  private dataReceived(data: LeaderboardJSON): void {
+    const currentYear: Date = new Date();
+    if (currentYear.getMonth() !== 11) currentYear.setFullYear(currentYear.getFullYear() - 1);
     const now: Date = new Date();
+
     const nextUpdate: Date = new Date(now.getTime() + 1800000);
-    let leaderboardData: { members: Member[] };
-    try {
-      leaderboardData = JSON.parse(data);
-    } catch (e: any) {
-      console.error(e);
-      return;
-    }
 
     let newMsg: MessageEmbed = new MessageEmbed()
       .setColor('#0f0f23')
-      .setTitle(`Advent Of Code ${now.getFullYear()} - Leaderboard`)
+      .setTitle(`Advent Of Code ${currentYear.getFullYear()} - Leaderboard`)
       .setURL(
-        `https://adventofcode.com/${nextUpdate.getFullYear()}/leaderboard/private/view/${
+        `https://adventofcode.com/${currentYear.getFullYear()}/leaderboard/private/view/${
           process.env.LEADERBOARD_ID
         }`
       )
@@ -178,7 +178,7 @@ export default class Leaderboard {
       .setTimestamp(now);
 
     // convert from object to array
-    let members: Member[] = Object.values(leaderboardData.members);
+    let members: Member[] = Object.values(data.members);
 
     // sort based on local score
     members.sort((a: Member, b: Member): number => {
@@ -204,7 +204,7 @@ export default class Leaderboard {
               stars += ':star2:';
             } else if (
               completed_ts - 10800000 <
-              this.getDateOfChallengeBegin(now, i).getTime()
+              this.getDateOfChallengeBegin(currentYear, i).getTime()
             ) {
               // member completed day in under 3 hours
               stars += ':sparkles:';
