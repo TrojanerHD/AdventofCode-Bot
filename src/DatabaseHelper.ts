@@ -57,7 +57,7 @@ export default class DatabaseHelper {
             aocSession,
             aocLeaderboardID,
             channelNamePattern,
-            categortyNamePattern
+            categoryNamePattern
           )
           VALUES(?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(id)
@@ -67,7 +67,7 @@ export default class DatabaseHelper {
             aocSession=?,
             aocLeaderboardID=?,
             channelNamePattern=?,
-            categortyNamePattern=?;`,
+            categoryNamePattern=?;`,
         [
           data.id,
           data.enableleaderboard,
@@ -104,7 +104,7 @@ export default class DatabaseHelper {
           aocSession VARCHAR(100),
           aocLeaderboardID INTEGER,
           channelNamePattern VARCHAR(50),
-          categortyNamePattern VARCHAR(50)
+          categoryNamePattern VARCHAR(50)
         );`,
         []
       )
