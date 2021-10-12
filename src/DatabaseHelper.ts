@@ -2,7 +2,7 @@ import { Database, RunResult } from 'sqlite3';
 
 export interface ServerInfo {
   id: string;
-  enableleaderboard: boolean;
+  enableLeaderboard: boolean;
   enableChannelUpdater: boolean;
   aocSession?: string;
   aocLeaderboardID?: number;
@@ -31,7 +31,7 @@ export default class DatabaseHelper {
           else
             resolve({
               id: id,
-              enableleaderboard: false,
+              enableLeaderboard: false,
               enableChannelUpdater: false,
             });
         })
@@ -70,13 +70,13 @@ export default class DatabaseHelper {
             categoryNamePattern=?;`,
         [
           data.id,
-          data.enableleaderboard,
+          data.enableLeaderboard,
           data.enableChannelUpdater,
           data.aocSession,
           data.aocLeaderboardID,
           data.channelNamePattern,
           data.categoryNamePattern,
-          data.enableleaderboard,
+          data.enableLeaderboard,
           data.enableChannelUpdater,
           data.aocSession,
           data.aocLeaderboardID,
