@@ -16,7 +16,6 @@ export default class DiscordBot {
 
   private onReady(): void {
     new ChannelUpdater().checkToday();
-    if (process.env.LEADERBOARD_ID && process.env.AOC_SESSION)
-      new Leaderboard().onReady();
+    new Leaderboard().onReady();
   }
 }
