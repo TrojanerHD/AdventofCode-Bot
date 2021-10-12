@@ -4,11 +4,13 @@ import {
   GuildChannel,
   TextChannel,
   Collection,
+  Guild,
 } from 'discord.js';
 import DiscordBot from './DiscordBot';
 import { request } from 'https';
-import { IncomingMessage } from 'http';
+import { IncomingMessage, Server } from 'http';
 import { parseDay } from './common';
+import { ServerInfo} from './DatabaseHelper';
 import * as fs from 'fs';
 
 interface Day {
@@ -67,29 +69,36 @@ export default class Leaderboard {
   }
 
   onReady(): void {
-    // get all guilds the bot is on
-    for (const guild of DiscordBot._client.guilds.cache.array()) {
-      // check if these guilds have a text channel named 'leaderboard'
-      const leaderboardChannel: GuildChannel = guild.channels.cache
-        .array()
-        .find(
-          (channel: GuildChannel): boolean =>
-            channel.name === 'leaderboard' && channel.type === 'text'
-        );
-      if (!leaderboardChannel || !(leaderboardChannel instanceof TextChannel))
-        continue;
-
-      this._leaderboardChannel = leaderboardChannel;
-
-      // get the latest message in the channel and check if it originated from this bot
-      this._leaderboardChannel.messages
-        .fetch({ limit: 1 })
-        .then(this.messagesFetched.bind(this))
-        .catch(console.error);
-    }
+    this.updateLeaderboards();
   }
 
-  private messagesFetched(messages: Collection<string, Message>): void {
+  private handleGuild(guild: Guild, serverInfo: ServerInfo): void {
+    if (!serverInfo.enableLeaderboard
+        || !serverInfo.aocLeaderboardID
+        || !serverInfo.aocSession)
+      return;
+
+    // check if the guild has a text channel named 'leaderboard'
+    const leaderboardChannel: GuildChannel = guild.channels.cache
+      .array()
+      .find(
+        (channel: GuildChannel): boolean =>
+          channel.name === 'leaderboard' && channel.type === 'text'
+      );
+    console.debug(leaderboardChannel)
+    if (!leaderboardChannel || !(leaderboardChannel instanceof TextChannel))
+      return;
+
+    this._leaderboardChannel = leaderboardChannel;
+
+    // get the latest message in the channel and check if it originated from this bot
+    this._leaderboardChannel.messages
+      .fetch({ limit: 1 })
+      .then(this.messagesFetched.bind(this, serverInfo))
+      .catch(console.error);
+  }
+
+  private messagesFetched(serverInfo: ServerInfo, messages: Collection<string, Message>): void {
     const now: Date = new Date();
     if (
       messages.first() &&
@@ -106,7 +115,7 @@ export default class Leaderboard {
             .setTitle(`Advent Of Code ${now.getFullYear()} Leaderboard`)
             .setURL(
               `https://adventofcode.com/${now.getFullYear()}/leaderboard/private/view/${
-                process.env.LEADERBOARD_ID
+                serverInfo.aocLeaderboardID
               }`
             )
             .setDescription('FIRST TIME SETUP...')
@@ -117,43 +126,52 @@ export default class Leaderboard {
     }
 
     // update Leaderbaord the first time
-    this.updateLeaderboard();
+    this.updateLeaderboard(serverInfo);
   }
 
-  private updateLeaderboard(): void {
+  private updateLeaderboards(): void {
+    // get all guilds the bot is on
+    for (const guild of DiscordBot._client.guilds.cache.array()) {
+      DiscordBot._db.getServer(guild.id).then(serverInfo => this.handleGuild(guild, serverInfo));
+    }
+
     // re-call this function in 30 minutes
     setTimeout(
       this.updateLeaderboard.bind(this),
       1800000 //30 minutes
     );
+  }
 
+  private updateLeaderboard(serverInfo: ServerInfo): void {
     const now: Date = new Date();
 
     console.log(`${now}: refreshing Leaderboard`);
 
     if (this._overwriteApi) {
-      this.dataReceived(this._overwriteApi);
+      this.dataReceived(serverInfo, this._overwriteApi);
       return;
     }
+    console.debug(serverInfo);
+    console.debug(`/${now.getFullYear()}/leaderboard/private/view/${serverInfo.aocLeaderboardID}.json`);
     // fetch API
     request(
       {
         host: 'adventofcode.com',
         path: `/${now.getFullYear()}/leaderboard/private/view/${
-          process.env.LEADERBOARD_ID
+          serverInfo.aocLeaderboardID
         }.json`,
-        headers: { Cookie: `session=${process.env.AOC_SESSION}` },
+        headers: { Cookie: `session=${serverInfo.aocSession}` },
       },
       (res: IncomingMessage): void => {
         // wait for data
-        res.on('data', this.dataReceived.bind(this));
+        res.on('data', this.dataReceived.bind(this, serverInfo));
       }
     )
       .on('error', console.error)
       .end();
   }
 
-  private dataReceived(data: string): void {
+  private dataReceived(serverInfo: ServerInfo, data: string): void {
     const now: Date = new Date();
     const nextUpdate: Date = new Date(now.getTime() + 1800000);
     let leaderboardData: { members: Member[] } = JSON.parse(data);
@@ -163,7 +181,7 @@ export default class Leaderboard {
       .setTitle(`Advent Of Code ${now.getFullYear()} - Leaderboard`)
       .setURL(
         `https://adventofcode.com/${nextUpdate.getFullYear()}/leaderboard/private/view/${
-          process.env.LEADERBOARD_ID
+          serverInfo.aocLeaderboardID
         }`
       )
       .setDescription(
