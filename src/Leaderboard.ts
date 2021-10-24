@@ -55,9 +55,9 @@ interface Member {
 }
 
 export default class Leaderboard {
-  private _messages: Message[] = [];
-  private _leaderboardChannel: TextChannel;
-  private _overwriteApi: string | undefined;
+  #messages: Message[] = [];
+  #leaderboardChannel: TextChannel;
+  #overwriteApi: string | undefined;
 
   constructor() {
     for (let i = 0; i < process.argv.length; i++) {
@@ -66,7 +66,7 @@ export default class Leaderboard {
         if (process.argv.length >= i + 2) {
           const file: string = process.argv[i + 1];
           if (fs.existsSync(file))
-            this._overwriteApi = fs.readFileSync(file, 'utf-8');
+            this.#overwriteApi = fs.readFileSync(file, 'utf-8');
         }
     }
   }
@@ -84,10 +84,10 @@ export default class Leaderboard {
       if (!leaderboardChannel || !(leaderboardChannel instanceof TextChannel))
         continue;
 
-      this._leaderboardChannel = leaderboardChannel;
+      this.#leaderboardChannel = leaderboardChannel;
 
       // get the latest message in the channel and check if it originated from this bot
-      this._leaderboardChannel.messages
+      this.#leaderboardChannel.messages
         .fetch({ limit: 1 })
         .then(this.messagesFetched.bind(this))
         .catch(console.error);
@@ -102,11 +102,11 @@ export default class Leaderboard {
       messages.first().member.user === DiscordBot._client.user
     )
       // add to messages array
-      this._messages.push(messages.first());
+      this.#messages.push(messages.first());
     else {
       // create message and add to messages array
       send(
-        this._leaderboardChannel,
+        this.#leaderboardChannel,
         new MessageEmbed()
           .setColor('#0f0f23')
           .setTitle(`Advent Of Code ${now.getFullYear()} Leaderboard`)
@@ -117,7 +117,7 @@ export default class Leaderboard {
           )
           .setDescription('FIRST TIME SETUP...')
           .setTimestamp(now),
-        (message: Message): number => this._messages.push(message)
+        (message: Message): number => this.#messages.push(message)
       );
     }
 
@@ -137,8 +137,8 @@ export default class Leaderboard {
 
     console.log(`${now}: refreshing Leaderboard`);
 
-    if (this._overwriteApi) {
-      this.dataReceived(JSON.parse(this._overwriteApi));
+    if (this.#overwriteApi) {
+      this.dataReceived(JSON.parse(this.#overwriteApi));
       return;
     }
 
@@ -219,7 +219,7 @@ export default class Leaderboard {
     }
 
     // update all leaderbaord messages
-    for (const msg of this._messages)
+    for (const msg of this.#messages)
       msg.edit({ embeds: [newMsg] }).catch(console.error);
   }
 

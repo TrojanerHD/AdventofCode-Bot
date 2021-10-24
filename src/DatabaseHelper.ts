@@ -11,10 +11,10 @@ export interface ServerInfo {
 }
 
 export default class DatabaseHelper {
-  private _db: Database;
+  #db: Database;
 
   constructor(file: string, callback?: ()=>void) {
-    this._db = new Database(file);
+    this.#db = new Database(file);
     this.initDatabase().then(callback).catch(console.error);
   }
 
@@ -121,7 +121,7 @@ export default class DatabaseHelper {
    */
   private runQuery(sql: string, params: any[]): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      this._db.run(sql, params, (err: Error) => {
+      this.#db.run(sql, params, (err: Error) => {
         if (err) reject(err);
         resolve();
       });
@@ -136,7 +136,7 @@ export default class DatabaseHelper {
    */
   private getRow(sql: string, params: any[]): Promise<any> {
     return new Promise<any>((resolve, reject) => {
-      this._db.get(sql, params, (err: Error, row: any) => {
+      this.#db.get(sql, params, (err: Error, row: any) => {
         if (err) reject(err);
         resolve(row);
       });
@@ -151,7 +151,7 @@ export default class DatabaseHelper {
    */
   private getAllRows(sql: string, params: any[]): Promise<any[]> {
     return new Promise<any[]>((resolve, reject) => {
-      this._db.all(sql, params, (err: Error, rows: any[]) => {
+      this.#db.all(sql, params, (err: Error, rows: any[]) => {
         if (err) reject(err);
         resolve(rows);
       });
