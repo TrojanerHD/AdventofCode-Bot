@@ -7,7 +7,7 @@ import {
 } from 'discord.js';
 import DiscordBot from './DiscordBot';
 import * as fetch from 'node-fetch';
-import { parseDay } from './common';
+import { parseDay, send } from './common';
 import * as fs from 'fs';
 
 interface LeaderboardJSON {
@@ -73,14 +73,14 @@ export default class Leaderboard {
 
   onReady(): void {
     // get all guilds the bot is on
-    for (const guild of DiscordBot._client.guilds.cache.array()) {
+    for (const guild of DiscordBot._client.guilds.cache.toJSON()) {
       // check if these guilds have a text channel named 'leaderboard'
       const leaderboardChannel: GuildChannel = guild.channels.cache
-        .array()
+        .toJSON()
         .find(
           (channel: GuildChannel): boolean =>
-            channel.name === 'leaderboard' && channel.type === 'text'
-        );
+            channel.name === 'leaderboard' && channel.type === 'GUILD_TEXT'
+        ) as GuildChannel;
       if (!leaderboardChannel || !(leaderboardChannel instanceof TextChannel))
         continue;
 
@@ -105,21 +105,20 @@ export default class Leaderboard {
       this._messages.push(messages.first());
     else {
       // create message and add to messages array
-      this._leaderboardChannel
-        .send(
-          new MessageEmbed()
-            .setColor('#0f0f23')
-            .setTitle(`Advent Of Code ${now.getFullYear()} Leaderboard`)
-            .setURL(
-              `https://adventofcode.com/${now.getFullYear()}/leaderboard/private/view/${
-                process.env.LEADERBOARD_ID
-              }`
-            )
-            .setDescription('FIRST TIME SETUP...')
-            .setTimestamp(now)
-        )
-        .then((message: Message): number => this._messages.push(message))
-        .catch(console.error);
+      send(
+        this._leaderboardChannel,
+        new MessageEmbed()
+          .setColor('#0f0f23')
+          .setTitle(`Advent Of Code ${now.getFullYear()} Leaderboard`)
+          .setURL(
+            `https://adventofcode.com/${now.getFullYear()}/leaderboard/private/view/${
+              process.env.LEADERBOARD_ID
+            }`
+          )
+          .setDescription('FIRST TIME SETUP...')
+          .setTimestamp(now),
+        (message: Message): number => this._messages.push(message)
+      );
     }
 
     // update Leaderbaord the first time
@@ -149,7 +148,7 @@ export default class Leaderboard {
         `https://adventofcode.com/${now.getFullYear()}/leaderboard/private/view/${
           process.env.LEADERBOARD_ID
         }.json`,
-        {headers: {Cookie: `session=${process.env.AOC_SESSION}`}}
+        { headers: { Cookie: `session=${process.env.AOC_SESSION}` } }
       )
       .then((res: fetch.Response): Promise<LeaderboardJSON> => res.json())
       .catch(console.error)
@@ -159,7 +158,8 @@ export default class Leaderboard {
 
   private dataReceived(data: LeaderboardJSON): void {
     const currentYear: Date = new Date();
-    if (currentYear.getMonth() !== 11) currentYear.setFullYear(currentYear.getFullYear() - 1);
+    if (currentYear.getMonth() !== 11)
+      currentYear.setFullYear(currentYear.getFullYear() - 1);
     const now: Date = new Date();
 
     const nextUpdate: Date = new Date(now.getTime() + 1800000);
@@ -219,7 +219,8 @@ export default class Leaderboard {
     }
 
     // update all leaderbaord messages
-    for (const msg of this._messages) msg.edit(newMsg).catch(console.error);
+    for (const msg of this._messages)
+      msg.edit({ embeds: [newMsg] }).catch(console.error);
   }
 
   private getDateOfChallengeBegin(now: Date, day: number): Date {

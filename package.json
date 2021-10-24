@@ -6,7 +6,7 @@
   "author": "Trojaner",
   "license": "MIT",
   "dependencies": {
-    "discord.js": "^12.3.1",
+    "discord.js": "^13.2.0",
     "node-fetch": "^2.6.1",
     "sqlite3": "^5.0.0"
   },
