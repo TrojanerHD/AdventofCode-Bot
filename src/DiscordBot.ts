@@ -8,12 +8,14 @@ import {
 } from 'discord.js';
 import ChannelUpdater from './ChannelUpdater';
 import Leaderboard from './Leaderboard';
+import ReactionHandler from './commands/handlers/ReactionHandler';
+import MessageHandler from './commands/handlers/MessageHandler';
 
 export default class DiscordBot {
   static _client: Client;
   constructor() {
     DiscordBot._client = new Client({
-      intents: [Intents.FLAGS.GUILDS],
+      intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
     });
     DiscordBot._client.login(process.env.TOKEN).catch(console.error);
     DiscordBot._client.on('ready', this.onReady.bind(this));
@@ -22,6 +24,8 @@ export default class DiscordBot {
 
   private onReady(): void {
     this.joinAllThreads();
+    new ReactionHandler();
+    new MessageHandler();
     new ChannelUpdater().checkToday();
     if (process.env.LEADERBOARD_ID && process.env.AOC_SESSION)
       new Leaderboard().onReady();
@@ -35,7 +39,7 @@ export default class DiscordBot {
             channel instanceof ThreadChannel &&
             !channel.members.cache.find(
               (member: ThreadMember): boolean =>
-                member.user.id === DiscordBot._client.user.id
+                member.user!.id === DiscordBot._client.user!.id
             )
         ) as Collection<string, ThreadChannel>
       ).toJSON())

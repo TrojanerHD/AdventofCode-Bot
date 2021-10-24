@@ -4,6 +4,7 @@ import {
   GuildChannel,
   TextChannel,
   Collection,
+  ThreadChannel,
 } from 'discord.js';
 import DiscordBot from './DiscordBot';
 import * as fetch from 'node-fetch';
@@ -15,6 +16,8 @@ interface LeaderboardJSON {
   owner_id: string;
   members: Member[];
 }
+
+type AdventDay = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25;
 
 interface Day {
   1: { get_star_ts: string };
@@ -56,7 +59,7 @@ interface Member {
 
 export default class Leaderboard {
   #messages: Message[] = [];
-  #leaderboardChannel: TextChannel;
+  #leaderboardChannel?: TextChannel;
   #overwriteApi: string | undefined;
 
   constructor() {
@@ -78,7 +81,7 @@ export default class Leaderboard {
       const leaderboardChannel: GuildChannel = guild.channels.cache
         .toJSON()
         .find(
-          (channel: GuildChannel): boolean =>
+          (channel: GuildChannel | ThreadChannel): boolean =>
             channel.name === 'leaderboard' && channel.type === 'GUILD_TEXT'
         ) as GuildChannel;
       if (!leaderboardChannel || !(leaderboardChannel instanceof TextChannel))
@@ -99,10 +102,10 @@ export default class Leaderboard {
     if (now.getMonth() !== 11) now.setFullYear(now.getFullYear() - 1);
     if (
       messages.first() &&
-      messages.first().member.user === DiscordBot._client.user
+      messages.first()!.member!.user === DiscordBot._client.user
     )
       // add to messages array
-      this.#messages.push(messages.first());
+      this.#messages.push(messages.first()!);
     else {
       // create message and add to messages array
       send(
@@ -152,11 +155,11 @@ export default class Leaderboard {
       )
       .then((res: fetch.Response): Promise<LeaderboardJSON> => res.json())
       .catch(console.error)
-      .then((data: LeaderboardJSON) => this.dataReceived(data))
+      .then((data: void | LeaderboardJSON): void => this.dataReceived(data))
       .catch(console.error);
   }
 
-  private dataReceived(data: LeaderboardJSON): void {
+  private dataReceived(data: void | LeaderboardJSON): void {
     const currentYear: Date = new Date();
     if (currentYear.getMonth() !== 11)
       currentYear.setFullYear(currentYear.getFullYear() - 1);
@@ -178,7 +181,7 @@ export default class Leaderboard {
       .setTimestamp(now);
 
     // convert from object to array
-    let members: Member[] = Object.values(data.members);
+    let members: Member[] = Object.values(data!.members);
 
     // sort based on local score
     members.sort((a: Member, b: Member): number => {
@@ -193,10 +196,10 @@ export default class Leaderboard {
 
       for (let i = 1; i < 26; i++) {
         if (i in member.completion_day_level) {
-          if (member.completion_day_level[i][2]) {
+          if (member.completion_day_level[i as AdventDay]![2]) {
             // part 1 and 2 are complete
             const completed_ts: number =
-              Number(member.completion_day_level[i][2].get_star_ts) * 1000;
+              Number(member.completion_day_level[i as AdventDay]![2]!.get_star_ts) * 1000;
 
             // check if star is younger than an hour
             if (completed_ts - (now.getTime() - 3600000) /*one hour*/ > 0) {
