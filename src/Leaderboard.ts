@@ -224,7 +224,7 @@ export default class Leaderboard {
 
   private getDateOfChallengeBegin(now: Date, day: number): Date {
     return new Date(
-      `${now.getFullYear()}-12-${parseDay(now, day)}T00:00:00-05:00`
+      `${this.getYearOfLeaderboard(now)}-12-${parseDay(now, day)}T00:00:00-05:00`
     );
   }
 
