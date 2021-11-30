@@ -139,14 +139,18 @@ export default class Leaderboard {
     request(
       {
         host: 'adventofcode.com',
-        path: `/${now.getFullYear()}/leaderboard/private/view/${
+        path: `/${this.getYearOfLeaderboard(now)}/leaderboard/private/view/${
           process.env.LEADERBOARD_ID
         }.json`,
-        headers: { Cookie: `session=${process.env.AOC_SESSION}` },
+        headers: {
+          Cookie: `session=${process.env.AOC_SESSION}`,
+        },
       },
       (res: IncomingMessage): void => {
         // wait for data
-        res.on('data', this.dataReceived.bind(this));
+        let data: string = '';
+        res.on('data', (chunk: Buffer): string => (data += chunk.toString()));
+        res.on('end', (): void => this.dataReceived(data));
       }
     )
       .on('error', console.error)
@@ -160,11 +164,13 @@ export default class Leaderboard {
 
     let newMsg: MessageEmbed = new MessageEmbed()
       .setColor('#0f0f23')
-      .setTitle(`Advent Of Code ${now.getFullYear()} - Leaderboard`)
+      .setTitle(
+        `Advent Of Code ${this.getYearOfLeaderboard(now)} - Leaderboard`
+      )
       .setURL(
-        `https://adventofcode.com/${nextUpdate.getFullYear()}/leaderboard/private/view/${
-          process.env.LEADERBOARD_ID
-        }`
+        `https://adventofcode.com/${this.getYearOfLeaderboard(
+          now
+        )}/leaderboard/private/view/${process.env.LEADERBOARD_ID}`
       )
       .setDescription(
         `:new_moon:: No part of the day is completed\n:last_quarter_moon:: Part 1 out of 2 is completed\n:star2:: Both part 1 and part 2 were completed during the last hour\n:star:: Both part 1 and part 2 are completed\n:sparkles:: Both part 1 and part 2 were completed within the first 3 hours the challenge was online.\n\nNext update: ${nextUpdate.toLocaleTimeString()}`
@@ -220,5 +226,14 @@ export default class Leaderboard {
     return new Date(
       `${now.getFullYear()}-12-${parseDay(now, day)}T00:00:00-05:00`
     );
+  }
+
+  /**
+   * Since the leaderboard from the previous year should be shown until the
+   * beginning of December in the next year, this function returns the
+   * correct year for the leaderboard to show
+   */
+  private getYearOfLeaderboard(now: Date): number {
+    return now.getFullYear() - (now.getMonth() < 11 ? 1 : 0);
   }
 }
