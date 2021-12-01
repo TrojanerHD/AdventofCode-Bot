@@ -10,6 +10,7 @@ import DiscordBot from './DiscordBot';
 import { request } from 'https';
 import { parseDay, send } from './common';
 import * as fs from 'fs';
+import { IncomingMessage } from 'http';
 
 interface LeaderboardJSON {
   event: string;
@@ -17,7 +18,32 @@ interface LeaderboardJSON {
   members: Member[];
 }
 
-type AdventDay = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25;
+type AdventDay =
+  | 1
+  | 2
+  | 3
+  | 4
+  | 5
+  | 6
+  | 7
+  | 8
+  | 9
+  | 10
+  | 11
+  | 12
+  | 13
+  | 14
+  | 15
+  | 16
+  | 17
+  | 18
+  | 19
+  | 20
+  | 21
+  | 22
+  | 23
+  | 24
+  | 25;
 
 interface Day {
   1: { get_star_ts: string };
@@ -141,7 +167,7 @@ export default class Leaderboard {
     console.log(`${now}: refreshing Leaderboard`);
 
     if (this.#overwriteApi) {
-      this.dataReceived(JSON.parse(this.#overwriteApi));
+      this.dataReceived(this.#overwriteApi);
       return;
     }
 
@@ -149,7 +175,7 @@ export default class Leaderboard {
     request(
       {
         host: 'adventofcode.com',
-        path: `/${this.getYearOfLeaderboard(now)}/leaderboard/private/view/${
+        path: `/${now.getFullYear()}/leaderboard/private/view/${
           process.env.LEADERBOARD_ID
         }.json`,
         headers: {
@@ -167,31 +193,32 @@ export default class Leaderboard {
       .end();
   }
 
-  private dataReceived(data: void | LeaderboardJSON): void {
-    const currentYear: Date = new Date();
-    if (currentYear.getMonth() !== 11)
-      currentYear.setFullYear(currentYear.getFullYear() - 1);
+  private dataReceived(data: string): void {
+    const aocYear: Date = new Date();
+    if (aocYear.getMonth() !== 11)
+      aocYear.setFullYear(aocYear.getFullYear() - 1);
     const now: Date = new Date();
 
     const nextUpdate: Date = new Date(now.getTime() + 1800000);
+    let leaderboardData: { members: Member[] } = JSON.parse(data);
 
     let newMsg: MessageEmbed = new MessageEmbed()
       .setColor('#0f0f23')
-      .setTitle(
-        `Advent Of Code ${this.getYearOfLeaderboard(now)} - Leaderboard`
-      )
+      .setTitle(`Advent Of Code ${aocYear.getFullYear()} - Leaderboard`)
       .setURL(
-        `https://adventofcode.com/${this.getYearOfLeaderboard(
-          now
-        )}/leaderboard/private/view/${process.env.LEADERBOARD_ID}`
+        `https://adventofcode.com/${aocYear.getFullYear()}/leaderboard/private/view/${
+          process.env.LEADERBOARD_ID
+        }`
       )
       .setDescription(
-        `:new_moon:: No part of the day is completed\n:last_quarter_moon:: Part 1 out of 2 is completed\n:star2:: Both part 1 and part 2 were completed during the last hour\n:star:: Both part 1 and part 2 are completed\n:sparkles:: Both part 1 and part 2 were completed within the first 3 hours the challenge was online.\n\nNext update: <t:${Math.round(nextUpdate.getTime() / 1000)}:T>`
+        `:new_moon:: No part of the day is completed\n:last_quarter_moon:: Part 1 out of 2 is completed\n:star2:: Both part 1 and part 2 were completed during the last hour\n:star:: Both part 1 and part 2 are completed\n:sparkles:: Both part 1 and part 2 were completed within the first 3 hours the challenge was online.\n\nNext update: <t:${Math.round(
+          nextUpdate.getTime() / 1000
+        )}:T>`
       )
       .setTimestamp(now);
 
     // convert from object to array
-    let members: Member[] = Object.values(data!.members);
+    let members: Member[] = Object.values(leaderboardData.members);
 
     // sort based on local score
     members.sort((a: Member, b: Member): number => {
@@ -209,7 +236,9 @@ export default class Leaderboard {
           if (member.completion_day_level[i as AdventDay]![2]) {
             // part 1 and 2 are complete
             const completed_ts: number =
-              Number(member.completion_day_level[i as AdventDay]![2]!.get_star_ts) * 1000;
+              Number(
+                member.completion_day_level[i as AdventDay]![2]!.get_star_ts
+              ) * 1000;
 
             // check if star is younger than an hour
             if (completed_ts - (now.getTime() - 3600000) /*one hour*/ > 0) {
@@ -217,7 +246,7 @@ export default class Leaderboard {
               stars += ':star2:';
             } else if (
               completed_ts - 10800000 <
-              this.getDateOfChallengeBegin(currentYear, i).getTime()
+              this.getDateOfChallengeBegin(aocYear, i).getTime()
             ) {
               // member completed day in under 3 hours
               stars += ':sparkles:';
@@ -238,7 +267,7 @@ export default class Leaderboard {
 
   private getDateOfChallengeBegin(now: Date, day: number): Date {
     return new Date(
-      `${this.getYearOfLeaderboard(now)}-12-${parseDay(now, day)}T00:00:00-05:00`
+      `${now.getFullYear()}-12-${parseDay(now, day)}T00:00:00-05:00`
     );
   }
 
@@ -247,7 +276,4 @@ export default class Leaderboard {
    * beginning of December in the next year, this function returns the
    * correct year for the leaderboard to show
    */
-  private getYearOfLeaderboard(now: Date): number {
-    return now.getFullYear() - (now.getMonth() < 11 ? 1 : 0);
-  }
 }
