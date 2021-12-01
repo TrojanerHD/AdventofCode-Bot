@@ -29,6 +29,7 @@ export default class ChannelUpdater {
       this.checkToday.bind(this),
       nextDay.getTime() - this.#now.getTime()
     );
+
     for (const guild of DiscordBot._client.guilds.cache.toJSON()) {
       const soonChannel: CategoryChannel | undefined = guild.channels.cache
         .toJSON()
@@ -49,7 +50,7 @@ export default class ChannelUpdater {
           guild.channels.cache.find(
             (channel: GuildChannel | ThreadChannel): boolean =>
               channel.type === 'GUILD_CATEGORY' &&
-              channel.name.toLowerCase() === '2020'
+              channel.name.toLowerCase() === this._now.getFullYear().toString()
           ) as CategoryChannel
         )
         .catch(console.error);
@@ -59,7 +60,7 @@ export default class ChannelUpdater {
           .setTimestamp(new Date())
           .setTitle('Advent of Code')
           .setDescription(
-            `New day, new challenge! Visit the [Advent of Code website day ${today}](https://adventofcode.com/2020/day/${this.#now.getDate()})`
+            `New day, new challenge! Visit the [Advent of Code website day ${today}](https://adventofcode.com/${this._now.getFullYear()}/day/${this._now.getDate()})`
           )
       );
     }

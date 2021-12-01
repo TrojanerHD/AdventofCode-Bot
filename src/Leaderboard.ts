@@ -7,7 +7,7 @@ import {
   ThreadChannel,
 } from 'discord.js';
 import DiscordBot from './DiscordBot';
-import * as fetch from 'node-fetch';
+import { request } from 'https';
 import { parseDay, send } from './common';
 import * as fs from 'fs';
 
@@ -146,17 +146,25 @@ export default class Leaderboard {
     }
 
     // fetch API
-    fetch
-      .default(
-        `https://adventofcode.com/${now.getFullYear()}/leaderboard/private/view/${
+    request(
+      {
+        host: 'adventofcode.com',
+        path: `/${this.getYearOfLeaderboard(now)}/leaderboard/private/view/${
           process.env.LEADERBOARD_ID
         }.json`,
-        { headers: { Cookie: `session=${process.env.AOC_SESSION}` } }
-      )
-      .then((res: fetch.Response): Promise<LeaderboardJSON> => res.json())
-      .catch(console.error)
-      .then((data: void | LeaderboardJSON): void => this.dataReceived(data))
-      .catch(console.error);
+        headers: {
+          Cookie: `session=${process.env.AOC_SESSION}`,
+        },
+      },
+      (res: IncomingMessage): void => {
+        // wait for data
+        let data: string = '';
+        res.on('data', (chunk: Buffer): string => (data += chunk.toString()));
+        res.on('end', (): void => this.dataReceived(data));
+      }
+    )
+      .on('error', console.error)
+      .end();
   }
 
   private dataReceived(data: void | LeaderboardJSON): void {
@@ -169,14 +177,16 @@ export default class Leaderboard {
 
     let newMsg: MessageEmbed = new MessageEmbed()
       .setColor('#0f0f23')
-      .setTitle(`Advent Of Code ${currentYear.getFullYear()} - Leaderboard`)
+      .setTitle(
+        `Advent Of Code ${this.getYearOfLeaderboard(now)} - Leaderboard`
+      )
       .setURL(
-        `https://adventofcode.com/${currentYear.getFullYear()}/leaderboard/private/view/${
-          process.env.LEADERBOARD_ID
-        }`
+        `https://adventofcode.com/${this.getYearOfLeaderboard(
+          now
+        )}/leaderboard/private/view/${process.env.LEADERBOARD_ID}`
       )
       .setDescription(
-        `:new_moon:: No part of the day is completed\n:last_quarter_moon:: Part 1 out of 2 is completed\n:star2:: Both part 1 and part 2 were completed during the last hour\n:star:: Both part 1 and part 2 are completed\n:sparkles:: Both part 1 and part 2 were completed within the first 3 hours the challenge was online.\n\nNext update: ${nextUpdate.toLocaleTimeString()}`
+        `:new_moon:: No part of the day is completed\n:last_quarter_moon:: Part 1 out of 2 is completed\n:star2:: Both part 1 and part 2 were completed during the last hour\n:star:: Both part 1 and part 2 are completed\n:sparkles:: Both part 1 and part 2 were completed within the first 3 hours the challenge was online.\n\nNext update: <t:${Math.round(nextUpdate.getTime() / 1000)}:T>`
       )
       .setTimestamp(now);
 
@@ -228,7 +238,16 @@ export default class Leaderboard {
 
   private getDateOfChallengeBegin(now: Date, day: number): Date {
     return new Date(
-      `${now.getFullYear()}-12-${parseDay(now, day)}T00:00:00-05:00`
+      `${this.getYearOfLeaderboard(now)}-12-${parseDay(now, day)}T00:00:00-05:00`
     );
+  }
+
+  /**
+   * Since the leaderboard from the previous year should be shown until the
+   * beginning of December in the next year, this function returns the
+   * correct year for the leaderboard to show
+   */
+  private getYearOfLeaderboard(now: Date): number {
+    return now.getFullYear() - (now.getMonth() < 11 ? 1 : 0);
   }
 }
