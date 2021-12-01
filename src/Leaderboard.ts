@@ -270,10 +270,4 @@ export default class Leaderboard {
       `${now.getFullYear()}-12-${parseDay(now, day)}T00:00:00-05:00`
     );
   }
-
-  /**
-   * Since the leaderboard from the previous year should be shown until the
-   * beginning of December in the next year, this function returns the
-   * correct year for the leaderboard to show
-   */
 }
