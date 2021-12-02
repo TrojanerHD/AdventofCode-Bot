@@ -14,7 +14,6 @@ export default class ChannelUpdater {
   checkToday(): void {
     this.#now = new Date();
     this.#now.setHours(this.#now.getHours() - 6); // Because the bot is hosted on a server with CET time zone…
-    this.#now.setDate(this.#now.getDate() - 1);
     const nextDay: Date = new Date(
       this.#now.getFullYear(),
       this.#now.getMonth(),
