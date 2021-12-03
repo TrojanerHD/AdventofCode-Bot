@@ -30,29 +30,24 @@ export default class ChannelUpdater {
     );
 
     for (const guild of DiscordBot._client.guilds.cache.toJSON()) {
-      const soonChannel: CategoryChannel | undefined = guild.channels.cache
-        .toJSON()
-        .find(
-          (channel: GuildChannel | ThreadChannel) =>
-            channel.type === 'GUILD_CATEGORY' &&
-            channel.name.toLowerCase() === 'soon :tm:'
-        ) as CategoryChannel;
-      if (!soonChannel) continue;
-      const today: string = parseDay(this.#now);
-      const todayChannel: GuildChannel | undefined = soonChannel.children.find(
-        (channel: GuildChannel): boolean =>
-          channel.name.toLowerCase() === `${this.#now.getFullYear()}-${today}`
-      );
-      if (!todayChannel) continue;
-      todayChannel
-        .setParent(
-          guild.channels.cache.find(
+      const currentYearCategory: CategoryChannel | undefined =
+        guild.channels.cache
+          .toJSON()
+          .find(
             (channel: GuildChannel | ThreadChannel): boolean =>
               channel.type === 'GUILD_CATEGORY' &&
               channel.name.toLowerCase() === this.#now.getFullYear().toString()
-          ) as CategoryChannel
-        )
-        .catch(console.error);
+          ) as CategoryChannel;
+      if (!currentYearCategory) continue;
+      const today: string = parseDay(this.#now);
+      const todayChannel: TextBasedChannels = currentYearCategory
+        .createChannel(`${this.#now.getFullYear()}-${today}`, {
+          type: 'GUILD_TEXT',
+          reason: `AOC Channel for ${this.#now.getFullYear()}-${today}`,
+        })
+        .catch(console.error) as TextBasedChannels;
+      if (!todayChannel) continue;
+
       send(
         todayChannel as TextBasedChannels,
         new MessageEmbed()
