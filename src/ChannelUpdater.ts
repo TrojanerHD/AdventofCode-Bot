@@ -3,6 +3,7 @@ import {
   GuildChannel,
   MessageEmbed,
   TextBasedChannels,
+  TextChannel,
   ThreadChannel,
 } from 'discord.js';
 import { parseDay, send } from './common';
@@ -10,6 +11,7 @@ import DiscordBot from './DiscordBot';
 
 export default class ChannelUpdater {
   #now: Date = new Date();
+  #today: string | undefined;
 
   checkToday(): void {
     this.#now = new Date();
@@ -39,24 +41,26 @@ export default class ChannelUpdater {
               channel.name.toLowerCase() === this.#now.getFullYear().toString()
           ) as CategoryChannel;
       if (!currentYearCategory) continue;
-      const today: string = parseDay(this.#now);
-      const todayChannel: TextBasedChannels = currentYearCategory
-        .createChannel(`${this.#now.getFullYear()}-${today}`, {
+      this.#today = parseDay(this.#now);
+      currentYearCategory
+        .createChannel(`${this.#now.getFullYear()}-${this.#today}`, {
           type: 'GUILD_TEXT',
-          reason: `AOC Channel for ${this.#now.getFullYear()}-${today}`,
+          reason: `AOC Channel for ${this.#now.getFullYear()}-${this.#today}`,
         })
-        .catch(console.error) as TextBasedChannels;
-      if (!todayChannel) continue;
-
-      send(
-        todayChannel as TextBasedChannels,
-        new MessageEmbed()
-          .setTimestamp(new Date())
-          .setTitle('Advent of Code')
-          .setDescription(
-            `New day, new challenge! Visit the [Advent of Code website day ${today}](https://adventofcode.com/${this.#now.getFullYear()}/day/${this.#now.getDate()})`
-          )
-      );
+        .then(this.sendMessage.bind(this))
+        .catch(console.error);
     }
+  }
+
+  sendMessage(channel: TextChannel): void {
+    send(
+      channel,
+      new MessageEmbed()
+        .setTimestamp(new Date())
+        .setTitle('Advent of Code')
+        .setDescription(
+          `New day, new challenge! Visit the [Advent of Code website day ${this.#today}](https://adventofcode.com/${this.#now.getFullYear()}/day/${this.#now.getDate()})`
+        )
+    );
   }
 }
