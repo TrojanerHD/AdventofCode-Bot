@@ -42,6 +42,14 @@ export default class ChannelUpdater {
           ) as CategoryChannel;
       if (!currentYearCategory) continue;
       this.#today = parseDay(this.#now);
+      if (
+        guild.channels.cache.find(
+          (channel: GuildChannel | ThreadChannel): boolean =>
+            channel.type === 'GUILD_TEXT' &&
+            channel.name === `${this.#now.getFullYear}-${this.#today}`
+        )
+      )
+        continue;
       currentYearCategory
         .createChannel(`${this.#now.getFullYear()}-${this.#today}`, {
           type: 'GUILD_TEXT',
@@ -59,7 +67,9 @@ export default class ChannelUpdater {
         .setTimestamp(new Date())
         .setTitle('Advent of Code')
         .setDescription(
-          `New day, new challenge! Visit the [Advent of Code website day ${this.#today}](https://adventofcode.com/${this.#now.getFullYear()}/day/${this.#now.getDate()})`
+          `New day, new challenge! Visit the [Advent of Code website day ${
+            this.#today
+          }](https://adventofcode.com/${this.#now.getFullYear()}/day/${this.#now.getDate()})`
         )
     );
   }
