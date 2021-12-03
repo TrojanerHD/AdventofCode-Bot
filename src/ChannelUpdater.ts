@@ -46,7 +46,7 @@ export default class ChannelUpdater {
         guild.channels.cache.find(
           (channel: GuildChannel | ThreadChannel): boolean =>
             channel.type === 'GUILD_TEXT' &&
-            channel.name === `${this.#now.getFullYear}-${this.#today}`
+            channel.name === `${this.#now.getFullYear()}-${this.#today}`
         )
       )
         continue;
