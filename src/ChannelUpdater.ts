@@ -15,7 +15,9 @@ export default class ChannelUpdater {
 
   checkToday(): void {
     this.#now = new Date();
-    this.#now.setHours(this.#now.getHours() - this.#now.getTimezoneOffset() / 60 - 5);
+    this.#now.setHours(
+      this.#now.getHours() - this.#now.getTimezoneOffset() / 60 - 5
+    );
     const nextDay: Date = new Date(
       this.#now.getFullYear(),
       this.#now.getMonth(),
@@ -26,10 +28,16 @@ export default class ChannelUpdater {
       0
     );
     nextDay.setDate(this.#now.getDate() + 1);
+    if (nextDay.getDate() > 25 || nextDay.getMonth() < 11) {
+      nextDay.setFullYear(nextDay.getFullYear());
+      nextDay.setMonth(11);
+      nextDay.setDate(1);
+    }
     setTimeout(
       this.checkToday.bind(this),
       nextDay.getTime() - this.#now.getTime()
     );
+    if (this.#now.getDate() > 25 || this.#now.getMonth() < 11) return;
 
     for (const guild of DiscordBot._client.guilds.cache.toJSON()) {
       const currentYearCategory: CategoryChannel | undefined =
