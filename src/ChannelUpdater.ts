@@ -16,7 +16,7 @@ export default class ChannelUpdater {
   checkToday(): void {
     this.#now = new Date();
     this.#now.setHours(
-      this.#now.getHours() - this.#now.getTimezoneOffset() / 60 - 5
+      this.#now.getHours() + this.#now.getTimezoneOffset() / 60 - 5
     );
     const nextDay: Date = new Date(
       this.#now.getFullYear(),
