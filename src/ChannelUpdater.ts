@@ -28,8 +28,9 @@ export default class ChannelUpdater {
       0
     );
     nextDay.setDate(this.#now.getDate() + 1);
-    if (nextDay.getDate() > 25 || nextDay.getMonth() < 11) {
-      nextDay.setFullYear(nextDay.getFullYear());
+    if (nextDay.getDate() >= 25 || nextDay.getMonth() != 11) {
+      if (nextDay.getMonth() == 11)
+        nextDay.setFullYear(nextDay.getFullYear() + 1);
       nextDay.setMonth(11);
       nextDay.setDate(1);
     }
