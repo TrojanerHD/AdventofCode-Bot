@@ -34,10 +34,11 @@ export default class ChannelUpdater {
       nextDay.setMonth(11);
       nextDay.setDate(1);
     }
-    setTimeout(
-      this.checkToday.bind(this),
-      nextDay.getTime() - this.#now.getTime()
-    );
+    let timeoutTime = nextDay.getTime() - this.#now.getTime();
+    // Ensures that timeoutTime never is larger than (2^31)-1.
+    // See: https://developer.mozilla.org/en-US/docs/Web/API/setTimeout#maximum_delay_value
+    if (timeoutTime > 2 ** 31 - 1) timeoutTime = 2 ** 31 - 1;
+    setTimeout(this.checkToday.bind(this), timeoutTime);
     if (this.#now.getDate() > 25 || this.#now.getMonth() < 11) return;
 
     for (const guild of DiscordBot._client.guilds.cache.toJSON()) {
