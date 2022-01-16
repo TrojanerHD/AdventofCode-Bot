@@ -6,7 +6,7 @@ import {
   TextChannel,
   ThreadChannel,
 } from 'discord.js';
-import { parseDay, send } from './common';
+import { aocTime, parseDay, send } from './common';
 import DiscordBot from './DiscordBot';
 
 export default class ChannelUpdater {
@@ -28,7 +28,7 @@ export default class ChannelUpdater {
       0
     );
     nextDay.setDate(this.#now.getDate() + 1);
-    if (nextDay.getDate() >= 25 || nextDay.getMonth() != 11) {
+    if (!aocTime(nextDay)) {
       if (nextDay.getMonth() == 11)
         nextDay.setFullYear(nextDay.getFullYear() + 1);
       nextDay.setMonth(11);

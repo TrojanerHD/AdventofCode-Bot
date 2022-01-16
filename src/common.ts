@@ -24,3 +24,12 @@ export function send(
   if (callback) msg.then(callback);
   msg.catch(console.error);
 }
+
+/**
+ * Checks if given date is in the Advent of Code time (between Dec 1 and Dec 25)
+ * @param date The date to check
+ * @returns Whether the date is in the Advent of Code time
+ */
+export function aocTime(date: Date): boolean {
+  return date.getMonth() === 11 && date.getDate() <= 25;
+}
