@@ -164,7 +164,7 @@ export default class Leaderboard {
     const now: Date = new Date();
     if (now.getMonth() !== 11) now.setFullYear(now.getFullYear() - 1);
 
-    console.log(`${now}: refreshing Leaderboard`);
+    console.log(`${now}: refreshing leaderboard`);
 
     if (this.#overwriteApi) {
       this.dataReceived(this.#overwriteApi);
@@ -187,6 +187,7 @@ export default class Leaderboard {
         let data: string = '';
         res.on('data', (chunk: Buffer): string => (data += chunk.toString()));
         res.on('end', (): void => this.dataReceived(data));
+        res.on('error', console.error);
       }
     )
       .on('error', console.error)
@@ -194,6 +195,12 @@ export default class Leaderboard {
   }
 
   private dataReceived(data: string): void {
+    if (data === '') {
+      console.error(
+        'No leaderboard data received. Maybe the AoC session token is not valid anymore?'
+      );
+      return;
+    }
     const aocYear: Date = new Date();
     if (aocYear.getMonth() !== 11)
       aocYear.setFullYear(aocYear.getFullYear() - 1);
