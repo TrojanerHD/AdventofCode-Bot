@@ -8,7 +8,7 @@ import {
 } from 'discord.js';
 import DiscordBot from './DiscordBot';
 import { request } from 'https';
-import { parseDay, send } from './common';
+import { aocTime, parseDay, send } from './common';
 import * as fs from 'fs';
 import { IncomingMessage } from 'http';
 
@@ -87,6 +87,7 @@ export default class Leaderboard {
   #messages: Message[] = [];
   #leaderboardChannel?: TextChannel;
   #overwriteApi: string | undefined;
+  #nextUpdate: number = 1800000;
 
   constructor() {
     for (let i = 0; i < process.argv.length; i++) {
@@ -155,13 +156,16 @@ export default class Leaderboard {
   }
 
   private updateLeaderboard(): void {
-    // re-call this function in 30 minutes
+    const now: Date = new Date();
+    this.#nextUpdate = aocTime(now)
+      ? 1800000 // 30 minutes
+      : 24 * 60 * 60 * 1000; // 24 hours
+    // re-call this function in 30 minutes if it's Advent of Code, otherwise in 24 hours
     setTimeout(
       this.updateLeaderboard.bind(this),
-      1800000 //30 minutes
+      this.#nextUpdate
     );
 
-    const now: Date = new Date();
     if (now.getMonth() !== 11) now.setFullYear(now.getFullYear() - 1);
 
     console.log(`${now}: refreshing leaderboard`);
@@ -206,7 +210,7 @@ export default class Leaderboard {
       aocYear.setFullYear(aocYear.getFullYear() - 1);
     const now: Date = new Date();
 
-    const nextUpdate: Date = new Date(now.getTime() + 1800000);
+    const nextUpdate: Date = new Date(now.getTime() + this.#nextUpdate);
     let leaderboardData: { members: Member[] } = JSON.parse(data);
 
     let newMsg: MessageEmbed = new MessageEmbed()
@@ -220,7 +224,7 @@ export default class Leaderboard {
       .setDescription(
         `:new_moon:: No part of the day is completed\n:last_quarter_moon:: Part 1 out of 2 is completed\n:star2:: Both part 1 and part 2 were completed during the last hour\n:star:: Both part 1 and part 2 are completed\n:sparkles:: Both part 1 and part 2 were completed within the first 3 hours the challenge was online.\n\nNext update: <t:${Math.round(
           nextUpdate.getTime() / 1000
-        )}:T>`
+        )}:R>`
       )
       .setTimestamp(now);
 
