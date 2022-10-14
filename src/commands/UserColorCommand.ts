@@ -35,7 +35,6 @@ export default class UserColorCommand implements Command {
         options: [],
       },
     ],
-    defaultMemberPermissions: PermissionFlagsBits.ManageGuild,
     dmPermission: false,
   };
 
