@@ -1,8 +1,8 @@
 import {
-  MessageEmbed,
-  TextBasedChannels,
-  MessageOptions,
+  EmbedBuilder,
   Message,
+  MessageCreateOptions,
+  TextChannel,
 } from 'discord.js';
 
 export function parseDay(date: Date, day?: number): string {
@@ -11,13 +11,13 @@ export function parseDay(date: Date, day?: number): string {
 }
 
 export function send(
-  channel: TextBasedChannels | undefined,
-  message: MessageEmbed | MessageOptions,
+  channel: TextChannel | undefined,
+  message: EmbedBuilder | MessageCreateOptions,
   callback?: (message: Message) => void
 ): void {
   if (!channel) return;
-  let messageOptions: MessageOptions = {};
-  if (message instanceof MessageEmbed) messageOptions.embeds = [message];
+  let messageOptions: MessageCreateOptions = {};
+  if (message instanceof EmbedBuilder) messageOptions.embeds = [message];
   else messageOptions = message;
   const msg: Promise<Message> = channel.send(messageOptions);
 

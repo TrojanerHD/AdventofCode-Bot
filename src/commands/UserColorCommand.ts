@@ -4,6 +4,7 @@ import {
   CommandInteractionOption,
   GuildMember,
   Interaction,
+  PermissionFlagsBits,
   Role,
 } from 'discord.js';
 import Settings from '../Settings';
@@ -34,8 +35,9 @@ export default class UserColorCommand implements Command {
         options: [],
       },
     ],
+    defaultMemberPermissions: PermissionFlagsBits.ManageGuild,
+    dmPermission: false,
   };
-  guildOnly: boolean = true;
 
   handleCommand(
     args: readonly CommandInteractionOption[],

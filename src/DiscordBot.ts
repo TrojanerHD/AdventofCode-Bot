@@ -1,8 +1,8 @@
 import {
   Client,
   Collection,
+  GatewayIntentBits,
   GuildChannel,
-  Intents,
   ThreadChannel,
   ThreadMember,
 } from 'discord.js';
@@ -13,9 +13,10 @@ import MessageHandler from './commands/handlers/MessageHandler';
 
 export default class DiscordBot {
   static _client: Client;
+
   constructor() {
     DiscordBot._client = new Client({
-      intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
+      intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
     });
     DiscordBot._client.login(process.env.TOKEN).catch(console.error);
     DiscordBot._client.on('ready', this.onReady.bind(this));

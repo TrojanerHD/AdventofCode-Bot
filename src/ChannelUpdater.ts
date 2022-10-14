@@ -1,8 +1,8 @@
+import { EmbedBuilder } from '@discordjs/builders';
 import {
   CategoryChannel,
+  ChannelType,
   GuildChannel,
-  MessageEmbed,
-  TextBasedChannels,
   TextChannel,
   ThreadChannel,
 } from 'discord.js';
@@ -47,7 +47,7 @@ export default class ChannelUpdater {
           .toJSON()
           .find(
             (channel: GuildChannel | ThreadChannel): boolean =>
-              channel.type === 'GUILD_CATEGORY' &&
+              channel.type === ChannelType.GuildCategory &&
               channel.name.toLowerCase() === this.#now.getFullYear().toString()
           ) as CategoryChannel;
       if (!currentYearCategory) continue;
@@ -55,14 +55,15 @@ export default class ChannelUpdater {
       if (
         guild.channels.cache.find(
           (channel: GuildChannel | ThreadChannel): boolean =>
-            channel.type === 'GUILD_TEXT' &&
+            channel.type === ChannelType.GuildText &&
             channel.name === `${this.#now.getFullYear()}-${this.#today}`
         )
       )
         continue;
-      currentYearCategory
-        .createChannel(`${this.#now.getFullYear()}-${this.#today}`, {
-          type: 'GUILD_TEXT',
+      currentYearCategory.children
+        .create({
+          name: `${this.#now.getFullYear()}-${this.#today}`,
+          type: ChannelType.GuildText,
           reason: `AOC Channel for ${this.#now.getFullYear()}-${this.#today}`,
         })
         .then(this.sendMessage.bind(this))
@@ -73,7 +74,7 @@ export default class ChannelUpdater {
   sendMessage(channel: TextChannel): void {
     send(
       channel,
-      new MessageEmbed()
+      new EmbedBuilder()
         .setTimestamp(new Date())
         .setTitle('Advent of Code')
         .setDescription(

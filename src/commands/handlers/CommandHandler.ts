@@ -6,7 +6,6 @@ import {
 import DiscordBot from '../../DiscordBot';
 import Settings from '../../Settings';
 import Command from '../Command';
-import CommandPermissions from '../CommandPermissions';
 import UserColorCommand from '../UserColorCommand';
 import DeployCommand from '../DeployCommand';
 
@@ -29,28 +28,9 @@ export default class CommandHandler {
           command.deploy.name !== userColorCommand.deploy.name
       );
 
-    const guildCommands: ApplicationCommandData[] = CommandHandler._commands
-      .filter((command: Command): boolean => command.guildOnly)
-      .map((command: Command): ApplicationCommandData => command.deploy);
-    const dmCommands: ApplicationCommandData[] = CommandHandler._commands
-      .filter((command: Command): boolean => !command.guildOnly)
+    const commands: ApplicationCommandData[] = CommandHandler._commands
       .map((command: Command): ApplicationCommandData => command.deploy);
 
-    DiscordBot._client.application!.commands.set(dmCommands);
-    for (const guild of DiscordBot._client.guilds.cache.toJSON()) {
-      guild.commands
-        .fetch()
-        .then((): void => {
-          const commandPermissions: CommandPermissions = new CommandPermissions(
-            guild
-          );
-
-          guild.commands
-            .set(guildCommands)
-            .then(commandPermissions.onCommandSet.bind(commandPermissions))
-            .catch(console.error);
-        })
-        .catch(console.error);
-    }
+    DiscordBot._client.application!.commands.set(commands);
   }
 }
