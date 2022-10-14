@@ -16,7 +16,11 @@ export default class DiscordBot {
 
   constructor() {
     DiscordBot._client = new Client({
-      intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
+      intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent,
+      ],
     });
     DiscordBot._client.login(process.env.TOKEN).catch(console.error);
     DiscordBot._client.on('ready', this.onReady.bind(this));
