@@ -1,4 +1,4 @@
-import { Message, Role } from 'discord.js';
+import { ChannelType, Message, Role } from 'discord.js';
 import DiscordBot from '../../DiscordBot';
 import Settings from '../../Settings';
 import CommandHandler from './CommandHandler';
@@ -9,7 +9,7 @@ export default class MessageHandler {
   }
   private onMessage(message: Message): void {
     if (
-      message.channel.type === 'DM' ||
+      message.channel.type === ChannelType.DM ||
       message.author.bot ||
       message.content !== '!deploy'
     )

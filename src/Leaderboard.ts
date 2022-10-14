@@ -1,10 +1,11 @@
 import {
   Message,
-  MessageEmbed,
   GuildChannel,
   TextChannel,
   Collection,
   ThreadChannel,
+  ChannelType,
+  EmbedBuilder,
 } from 'discord.js';
 import DiscordBot from './DiscordBot';
 import { request } from 'https';
@@ -109,7 +110,8 @@ export default class Leaderboard {
         .toJSON()
         .find(
           (channel: GuildChannel | ThreadChannel): boolean =>
-            channel.name === 'leaderboard' && channel.type === 'GUILD_TEXT'
+            channel.name === 'leaderboard' &&
+            channel.type === ChannelType.GuildText
         ) as GuildChannel;
       if (!leaderboardChannel || !(leaderboardChannel instanceof TextChannel))
         continue;
@@ -137,7 +139,7 @@ export default class Leaderboard {
       // create message and add to messages array
       send(
         this.#leaderboardChannel,
-        new MessageEmbed()
+        new EmbedBuilder()
           .setColor('#0f0f23')
           .setTitle(`Advent Of Code ${now.getFullYear()} Leaderboard`)
           .setURL(
@@ -161,10 +163,7 @@ export default class Leaderboard {
       ? 1800000 // 30 minutes
       : 24 * 60 * 60 * 1000; // 24 hours
     // re-call this function in 30 minutes if it's Advent of Code, otherwise in 24 hours
-    setTimeout(
-      this.updateLeaderboard.bind(this),
-      this.#nextUpdate
-    );
+    setTimeout(this.updateLeaderboard.bind(this), this.#nextUpdate);
 
     if (now.getMonth() !== 11) now.setFullYear(now.getFullYear() - 1);
 
@@ -213,7 +212,7 @@ export default class Leaderboard {
     const nextUpdate: Date = new Date(now.getTime() + this.#nextUpdate);
     let leaderboardData: { members: Member[] } = JSON.parse(data);
 
-    let newMsg: MessageEmbed = new MessageEmbed()
+    let newMsg: EmbedBuilder = new EmbedBuilder()
       .setColor('#0f0f23')
       .setTitle(`Advent Of Code ${aocYear.getFullYear()} - Leaderboard`)
       .setURL(
@@ -268,7 +267,7 @@ export default class Leaderboard {
         stars += ':new_moon:'; // no part is complete
       }
 
-      newMsg.addField(member.name, stars);
+      newMsg.addFields([{ name: member.name, value: stars }]);
     }
 
     // update all leaderbaord messages

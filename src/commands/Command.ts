@@ -5,14 +5,13 @@ import {
 } from 'discord.js';
 
 export interface Reply {
-  reply?: string | null;
+  reply?: string;
   ephemeral?: boolean;
   afterResponse?: () => void;
 }
 
 export default abstract class Command {
   abstract deploy: ApplicationCommandData;
-  guildOnly: boolean = false;
   abstract handleCommand(
     args: readonly CommandInteractionOption[],
     interaction: Interaction

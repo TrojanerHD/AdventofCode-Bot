@@ -3,11 +3,14 @@ import {
   Collection,
   CommandInteractionOption,
   Interaction,
+  PermissionFlagsBits,
   Snowflake,
 } from 'discord.js';
 import DiscordBot from '../DiscordBot';
 import Command, { Reply } from './Command';
-import CommandHandler, { ApplicationCommandType } from './handlers/CommandHandler';
+import CommandHandler, {
+  ApplicationCommandType,
+} from './handlers/CommandHandler';
 
 export default class DeployCommand implements Command {
   deploy: ApplicationCommandData = {
@@ -27,20 +30,18 @@ export default class DeployCommand implements Command {
         options: [],
       },
     ],
-    defaultPermission: false,
+    defaultMemberPermissions: PermissionFlagsBits.ManageGuild,
+    dmPermission: false,
   };
-  guildOnly: boolean = true;
 
-  handleCommand(
-    args: readonly CommandInteractionOption[],
-  ): Reply {
+  handleCommand(args: readonly CommandInteractionOption[]): Reply {
     switch (args[0].name) {
       case 'all':
         CommandHandler.addCommands();
         return { reply: 'All commands have been added', ephemeral: true };
       case 'remove':
-        DiscordBot._client.application!.commands
-          .fetch()
+        DiscordBot._client
+          .application!.commands.fetch()
           .then(this.commandsFetched)
           .catch(console.error);
 
