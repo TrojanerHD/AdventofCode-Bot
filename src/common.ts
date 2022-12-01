@@ -17,7 +17,7 @@ export function send(
 ): void {
   if (!channel) return;
   let messageOptions: MessageCreateOptions = {};
-  if (message instanceof EmbedBuilder) messageOptions.embeds = [message];
+  if ('data' in message) messageOptions.embeds = [message];
   else messageOptions = message;
   const msg: Promise<Message> = channel.send(messageOptions);
 
