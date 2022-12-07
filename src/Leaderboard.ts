@@ -183,6 +183,7 @@ export default class Leaderboard {
         }.json`,
         headers: {
           Cookie: `session=${process.env.AOC_SESSION}`,
+          'User-Agent': 'github.com/TrojanerHD/AdventofCode-Bot by mail@trojaner.dev'
         },
       },
       (res: IncomingMessage): void => {
