@@ -16,7 +16,7 @@
                 "${workspaceFolder}/**/*.js"
             ],
             "preLaunchTask": "tsc: build - tsconfig.json",
-            "runtimeArgs": ["-r", "dotenv/config", "--trace-warnings"],
+            "runtimeArgs": ["--trace-warnings"],
         }
     ]
 }
