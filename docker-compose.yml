@@ -1,0 +1,13 @@
+version: "3.8"
+services:
+  adventofcode-bot:
+    build:
+      dockerfile: ./Dockerfile
+    env_file: .env
+    volumes:
+      - adventofcode-bot:/usr/src/trojaner
+    ports:
+      - "3334:80"
+
+volumes:
+  adventofcode-bot:
