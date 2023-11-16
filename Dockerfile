@@ -12,7 +12,7 @@ RUN yarn global add typescript
 # copy bot to work dir
 COPY . ./
 
-RUN tsc
+RUN yarn compile
 
 # main command
 CMD ["node", "build/index.js"]
