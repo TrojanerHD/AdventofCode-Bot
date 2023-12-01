@@ -159,9 +159,10 @@ export default class Leaderboard {
 
   private updateLeaderboard(): void {
     const now: Date = new Date();
-    this.#nextUpdate = aocTime(now)
-      ? 1800000 // 30 minutes
-      : 24 * 60 * 60 * 1000; // 24 hours
+    const oneDay: number = 24 * 60 * 60 * 1000;
+    this.#nextUpdate = aocTime(now) || aocTime(new Date(now.getTime() + oneDay))
+      ? 1_800_000 // 30 minutes
+      : oneDay; // 24 hours
     // re-call this function in 30 minutes if it's Advent of Code, otherwise in 24 hours
     setTimeout(this.updateLeaderboard.bind(this), this.#nextUpdate);
 
