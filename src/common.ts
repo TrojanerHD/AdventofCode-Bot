@@ -31,5 +31,9 @@ export function send(
  * @returns Whether the date is in the Advent of Code time
  */
 export function aocTime(date: Date): boolean {
-  return date.getMonth() === 11 && date.getDate() <= 25;
+  return (
+    date.getMonth() === 11 &&
+    date.getDate() <= 25 &&
+    (date.getDate() !== 1 || date.getUTCHours() >= 5)
+  );
 }
