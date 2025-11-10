@@ -26,14 +26,24 @@ export function send(
 }
 
 /**
- * Checks if given date is in the Advent of Code time (between Dec 1 and Dec 25)
+ * Checks if given date is in the Advent of Code time
+ * (between Dec 1 and Dec 25 for 2024 or earlier and between Dec 1 and Dec 12 for 2025 or later)
  * @param date The date to check
  * @returns Whether the date is in the Advent of Code time
  */
 export function aocTime(date: Date): boolean {
   return (
     date.getMonth() === 11 &&
-    date.getDate() <= 25 &&
+    date.getDate() <= numberOfDays(date.getFullYear())&&
     (date.getDate() !== 1 || date.getUTCHours() >= 5)
   );
+}
+
+/**
+ * Returns the number of days of challenges for the current year
+ * @param year The year to check
+ * @returns The amount of days for the specified year
+ */
+export function numberOfDays(year: number): number {
+  return year <= 2024 ? 25 : 12;
 }
