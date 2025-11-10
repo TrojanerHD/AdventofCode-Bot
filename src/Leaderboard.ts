@@ -9,7 +9,7 @@ import {
 } from 'discord.js';
 import DiscordBot from './DiscordBot';
 import { request } from 'https';
-import { aocTime, parseDay, send } from './common';
+import { aocTime, numberOfDays, parseDay, send } from './common';
 import * as fs from 'fs';
 import { IncomingMessage } from 'http';
 
@@ -243,7 +243,7 @@ export default class Leaderboard {
       if (member.stars === 0) continue;
       let stars: string = '';
 
-      for (let i = 1; i < 26; i++) {
+      for (let i = 1; i <= numberOfDays(now.getFullYear()); i++) {
         if (i in member.completion_day_level) {
           if (member.completion_day_level[i as AdventDay]![2]) {
             // part 1 and 2 are complete
