@@ -243,7 +243,7 @@ export default class Leaderboard {
       if (member.stars === 0) continue;
       let stars: string = '';
 
-      for (let i = 1; i <= numberOfDays(now.getFullYear()); i++) {
+      for (let i = 1; i <= numberOfDays(aocYear.getFullYear()); i++) {
         if (i in member.completion_day_level) {
           if (member.completion_day_level[i as AdventDay]![2]) {
             // part 1 and 2 are complete
