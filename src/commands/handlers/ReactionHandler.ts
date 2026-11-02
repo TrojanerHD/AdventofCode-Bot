@@ -1,4 +1,4 @@
-import { Interaction } from 'discord.js';
+import { BaseInteraction, Interaction } from 'discord.js';
 import DiscordBot from '../../DiscordBot';
 import Command, { Reply } from '../Command';
 import CommandHandler from './CommandHandler';
@@ -8,13 +8,14 @@ export default class ReactionHandler {
     DiscordBot._client.on('interactionCreate', this.onReaction.bind(this));
   }
 
-  private onReaction(interaction: Interaction): void {
-    if (!interaction.isCommand()) return;
+  private onReaction(interaction: BaseInteraction): void {
+    if (!interaction.isChatInputCommand()) return;
     const command: Command | undefined = CommandHandler._commands.find(
       (findCommand: Command): boolean =>
         findCommand.deploy.name === interaction.commandName
     );
     if (!command) return;
+    interaction.guild
     const reply: Reply = command.handleCommand(
       interaction.options.data,
       interaction

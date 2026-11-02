@@ -1,7 +1,7 @@
-import { EmbedBuilder } from '@discordjs/builders';
 import {
   CategoryChannel,
   ChannelType,
+  EmbedBuilder,
   GuildChannel,
   TextChannel,
   ThreadChannel,
