@@ -15,16 +15,19 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.x, 17.x, 18.x]
+        node-version: [18.x, 19.x, 20.x, 21.x, 22.x, 23.x, 24.x, 25.x, 26.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/setup@v3
         with:
-          node-version: ${{ matrix.node-version }}
-      - name: Install packages
-        run: yarn
+          version: 12.16.1
+          runtime: "node@${{ matrix.node-version }}"
+
+      - name: Install dependencies
+        run: pnpm install
+
       - name: Typescript compiler
         uses: iCrawl/action-tsc@v1
