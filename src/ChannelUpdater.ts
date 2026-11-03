@@ -65,6 +65,7 @@ export default class ChannelUpdater {
           name: `${this.#now.getFullYear()}-${this.#today}`,
           type: ChannelType.GuildText,
           reason: `AOC Channel for ${this.#now.getFullYear()}-${this.#today}`,
+          position: 0
         })
         .then(this.sendMessage.bind(this))
         .catch(console.error);
